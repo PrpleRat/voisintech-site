@@ -12,6 +12,7 @@ import {
   MapPin,
   Calendar,
   Monitor,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrainAppLinks } from "@/components/TrainAppLinks";
@@ -96,11 +97,15 @@ function QuoteCard({
   expanded,
   onToggle,
   onUpdateStatus,
+  onDelete,
+  deleting,
 }: {
   quote: Quote;
   expanded: boolean;
   onToggle: () => void;
   onUpdateStatus: (id: string, status: string) => void;
+  onDelete: (id: string, label: string) => void;
+  deleting?: boolean;
 }) {
   const trainActions = quoteTrainActions(quote);
 
@@ -208,6 +213,16 @@ function QuoteCard({
             <Button size="sm" variant="outline" asChild>
               <a href={`mailto:${quote.email}?subject=Votre demande VoisinTech`}>Répondre par email</a>
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+              disabled={deleting}
+              onClick={() => onDelete(quote.id, `le devis de ${quote.name}`)}
+            >
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              Supprimer
+            </Button>
           </div>
 
           <TrainAppLinks
@@ -235,6 +250,7 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"quotes" | "contacts">("quotes");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -281,6 +297,33 @@ export default function AdminDashboardPage() {
       body: JSON.stringify({ action: "update-status", type, id, status }),
     });
     loadData();
+  };
+
+  const deleteItem = async (type: "quote" | "contact", id: string, label: string) => {
+    if (!window.confirm(`Supprimer définitivement ${label} ? Cette action est irréversible.`)) {
+      return;
+    }
+
+    setDeletingId(id);
+    try {
+      const res = await fetch("/api/admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete", type, id }),
+      });
+
+      if (!res.ok) {
+        alert("Erreur lors de la suppression.");
+        return;
+      }
+
+      if (expandedId === id) setExpandedId(null);
+      await loadData();
+    } catch {
+      alert("Erreur lors de la suppression.");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const logout = async () => {
@@ -360,6 +403,8 @@ export default function AdminDashboardPage() {
                 expanded={expandedId === q.id}
                 onToggle={() => setExpandedId(expandedId === q.id ? null : q.id)}
                 onUpdateStatus={(id, status) => updateStatus("quote", id, status)}
+                onDelete={(id, label) => deleteItem("quote", id, label)}
+                deleting={deletingId === q.id}
               />
             ))}
             {quotes.length === 0 && (
@@ -406,6 +451,16 @@ export default function AdminDashboardPage() {
                   )}
                   <Button size="sm" variant="outline" asChild>
                     <a href={`mailto:${c.email}`}>Répondre</a>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                    disabled={deletingId === c.id}
+                    onClick={() => deleteItem("contact", c.id, `le message de ${c.name}`)}
+                  >
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    Supprimer
                   </Button>
                 </div>
                 <TrainAppLinks

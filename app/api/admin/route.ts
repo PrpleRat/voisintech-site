@@ -34,6 +34,22 @@ export async function POST(request: NextRequest) {
 
     const prisma = await getPrisma();
 
+    if (action === "delete") {
+      if (type === "quote" && id) {
+        await prisma.quoteRequest.delete({ where: { id } });
+        return NextResponse.json({ success: true });
+      }
+      if (type === "contact" && id) {
+        await prisma.contactMessage.delete({ where: { id } });
+        return NextResponse.json({ success: true });
+      }
+      if (type === "review" && id) {
+        await prisma.review.delete({ where: { id } });
+        return NextResponse.json({ success: true });
+      }
+      return NextResponse.json({ error: "Type ou id manquant" }, { status: 400 });
+    }
+
     if (action === "update-status") {
       if (type === "quote" && id && status) {
         await prisma.quoteRequest.update({
