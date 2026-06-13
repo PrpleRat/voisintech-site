@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { business } from "@/config/content";
+import { getWhatsAppUrl } from "@/lib/whatsapp";
+import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 
 const footerLinks = [
   { href: "/services", label: "Services" },
@@ -33,8 +35,19 @@ export function Footer() {
             <ul className="space-y-3">
               <li>
                 <a
-                  href={`tel:${business.phoneRaw}`}
+                  href={getWhatsAppUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center gap-3 text-lg font-bold hover:text-accent transition-colors min-h-[44px]"
+                >
+                  <WhatsAppIcon className="h-5 w-5" />
+                  WhatsApp — {business.phone}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={`tel:${business.phoneRaw}`}
+                  className="flex items-center gap-3 hover:text-accent transition-colors min-h-[44px]"
                 >
                   <Phone className="h-5 w-5 shrink-0" aria-hidden="true" />
                   {business.phone}

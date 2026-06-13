@@ -7,13 +7,18 @@ interface CallButtonProps {
   size?: "default" | "sm" | "lg";
   className?: string;
   variant?: "success" | "outline";
+  /** Label court sans numéro — pour header et espaces étroits */
+  compact?: boolean;
 }
 
 export function CallButton({
   size = "lg",
   className,
   variant = "success",
+  compact = false,
 }: CallButtonProps) {
+  const label = compact ? "Appeler" : `Appeler ${business.phone}`;
+
   return (
     <Button
       asChild
@@ -24,9 +29,12 @@ export function CallButton({
       )}
       variant={variant === "outline" ? "outline" : "default"}
     >
-      <a href={`tel:${business.phoneRaw}`}>
-        <Phone className="h-5 w-5" aria-hidden="true" />
-        Appeler {business.phone}
+      <a
+        href={`tel:${business.phoneRaw}`}
+        aria-label={`Appeler le ${business.phone}`}
+      >
+        <Phone className="h-5 w-5 shrink-0" aria-hidden="true" />
+        {label}
       </a>
     </Button>
   );

@@ -1,3 +1,5 @@
+import { toGatewayUrl } from "@/lib/deeplink-gateway";
+
 export interface QuoteLinkData {
   name: string;
   phone: string;
@@ -81,6 +83,24 @@ export function crmNewFollowUp() {
   return buildDeepLink("traincrm", "relances", "new");
 }
 
+export function factuTrainNewClient(data: Pick<QuoteLinkData, "name" | "phone" | "email" | "address" | "city">) {
+  return buildDeepLink("factutrain", "clients", "new", {
+    name: data.name,
+    phone: data.phone,
+    email: data.email,
+    address: fullAddress(data),
+  });
+}
+
+export function agendaNewClient(data: Pick<QuoteLinkData, "name" | "phone" | "email" | "address" | "city">) {
+  return buildDeepLink("agendatrain", "clients", "new", {
+    name: data.name,
+    phone: data.phone,
+    email: data.email,
+    address: fullAddress(data),
+  });
+}
+
 /** FactuTrain — nouveau devis */
 export function factuTrainNewQuote(data: QuoteLinkData) {
   return buildDeepLink("factutrain", "quotes", "new", {
@@ -122,73 +142,83 @@ export interface TrainAppAction {
   id: string;
   label: string;
   href: string;
+  /** Lien HTTPS pour emails (redirige vers href) */
+  emailHref?: string;
   description?: string;
   variant?: "default" | "outline" | "secondary";
+}
+
+function withEmailHref(action: TrainAppAction): TrainAppAction {
+  return { ...action, emailHref: toGatewayUrl(action.href) };
 }
 
 export function quoteTrainActions(data: QuoteLinkData): {
   workflow: TrainAppAction[];
   postIntervention: TrainAppAction[];
 } {
+  const workflow = [
+    {
+      id: "crm",
+      label: "Fiche client CRM",
+      href: crmNewClient(data),
+      description: "TrainCRM",
+      variant: "outline" as const,
+    },
+    {
+      id: "agenda",
+      label: "Planifier RDV",
+      href: agendaNewIntervention(data),
+      description: "AgendaTrain",
+      variant: "outline" as const,
+    },
+    {
+      id: "quote",
+      label: "Créer devis",
+      href: factuTrainNewQuote(data),
+      description: "FactuTrain",
+      variant: "outline" as const,
+    },
+    {
+      id: "agenda-view",
+      label: "Voir agenda",
+      href: agendaOpen(),
+      description: "AgendaTrain",
+      variant: "secondary" as const,
+    },
+  ];
+
+  const postIntervention = [
+    {
+      id: "invoice",
+      label: "Facturer",
+      href: factuTrainNewInvoice(data),
+      description: "FactuTrain",
+      variant: "outline" as const,
+    },
+    {
+      id: "revenue",
+      label: "Déclarer CA",
+      href: trainCANewRevenue(data),
+      description: "TrainCA",
+      variant: "outline" as const,
+    },
+    {
+      id: "trainca",
+      label: "Dashboard CA",
+      href: trainCADashboard(),
+      description: "TrainCA",
+      variant: "secondary" as const,
+    },
+  ];
+
   return {
-    workflow: [
-      {
-        id: "crm",
-        label: "Fiche client CRM",
-        href: crmNewClient(data),
-        description: "TrainCRM",
-        variant: "outline",
-      },
-      {
-        id: "agenda",
-        label: "Planifier RDV",
-        href: agendaNewIntervention(data),
-        description: "AgendaTrain",
-        variant: "outline",
-      },
-      {
-        id: "quote",
-        label: "Créer devis",
-        href: factuTrainNewQuote(data),
-        description: "FactuTrain",
-        variant: "outline",
-      },
-      {
-        id: "agenda-view",
-        label: "Voir agenda",
-        href: agendaOpen(),
-        description: "AgendaTrain",
-        variant: "secondary",
-      },
-    ],
-    postIntervention: [
-      {
-        id: "invoice",
-        label: "Facturer",
-        href: factuTrainNewInvoice(data),
-        description: "FactuTrain",
-        variant: "outline",
-      },
-      {
-        id: "revenue",
-        label: "Déclarer CA",
-        href: trainCANewRevenue(data),
-        description: "TrainCA",
-        variant: "outline",
-      },
-      {
-        id: "trainca",
-        label: "Dashboard CA",
-        href: trainCADashboard(),
-        description: "TrainCA",
-        variant: "secondary",
-      },
-    ],
+    workflow: workflow.map(withEmailHref),
+    postIntervention: postIntervention.map(withEmailHref),
   };
 }
 
 export function contactTrainActions(data: ContactLinkData): TrainAppAction[] {
-  return [
+  const actions: TrainAppAction[] = [
     {
       id: "crm",
       label: "Ajouter au CRM",
@@ -217,4 +247,6 @@ export function contactTrainActions(data: ContactLinkData): TrainAppAction[] {
       variant: "outline",
     },
   ];
+
+  return actions.map(withEmailHref);
 }

@@ -14,7 +14,7 @@ export const business = {
   phone: "05 82 95 06 42",
   phoneRaw: "0582950642",
   email: "voisintech3@gmail.com",
-  website: "https://voisintech.fr",
+  website: "https://www.voisintech.fr",
   city: "Toulouse",
   serviceRadius: "15 à 30 km",
   siret: "XXX XXX XXX XXXXX",

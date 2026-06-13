@@ -4,8 +4,10 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { Phone, ArrowRight } from "lucide-react";
 import { business } from "@/config/content";
+import { getWhatsAppUrl } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/button";
 import { CallButton } from "@/components/CallButton";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 export function Hero() {
   const reduceMotion = useReducedMotion();
@@ -26,22 +28,32 @@ export function Hero() {
               Je viens chez vous, je répare, et j&apos;explique tout simplement —
               sans jargon, avec patience.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <CallButton />
-              <Button asChild size="lg">
+            <div className="flex flex-col gap-3 max-w-md">
+              <Button asChild size="lg" className="w-full sm:w-auto">
                 <Link href="/devis">
                   Demander un devis gratuit
-                  <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                  <ArrowRight className="h-5 w-5 shrink-0" aria-hidden="true" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg">
+              <CallButton className="w-full sm:w-auto" />
+              <WhatsAppButton className="w-full sm:w-auto" />
+              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
                 <Link href="/services">Voir les tarifs</Link>
               </Button>
             </div>
             <p className="mt-6 text-base text-gray-600">
-              Ou appelez directement :{" "}
+              Ou contactez-nous :{" "}
               <a href={`tel:${business.phoneRaw}`} className="phone-link">
                 {business.phone}
+              </a>
+              {" · "}
+              <a
+                href={getWhatsAppUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#128C7E] font-bold hover:underline focus-visible:underline"
+              >
+                WhatsApp
               </a>
             </p>
           </div>

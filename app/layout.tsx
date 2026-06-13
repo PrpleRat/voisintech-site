@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { StickyCallButton } from "@/components/StickyCallButton";
+import { StickyContactButtons } from "@/components/StickyContactButtons";
 import { LocalBusinessSchema } from "@/components/LocalBusinessSchema";
 import { Analytics } from "@/components/Analytics";
 import { business } from "@/config/content";
@@ -56,12 +56,12 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className="flex flex-col min-h-screen">
+        <Analytics />
         <LocalBusinessSchema />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
-        <StickyCallButton />
-        <Analytics />
+        <StickyContactButtons />
       </body>
     </html>
   );

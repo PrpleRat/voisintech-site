@@ -6,6 +6,8 @@ import { Menu, X, Phone } from "lucide-react";
 import { business } from "@/config/content";
 import { Button } from "@/components/ui/button";
 import { CallButton } from "@/components/CallButton";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { getWhatsAppUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -19,20 +21,38 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
+const desktopNavLinks = [
+  { href: "/", label: "Accueil" },
+  { href: "/services", label: "Services" },
+  { href: "/devis", label: "Devis" },
+  { href: "/villes", label: "Villes" },
+  { href: "/blog", label: "Blog" },
+  { href: "/contact", label: "Contact" },
+];
+
 export function Header() {
   const [open, setOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-primary/10 shadow-sm">
       <div className="bg-primary text-white py-2">
-        <div className="container-page flex items-center justify-center gap-2 text-sm sm:text-base">
+        <div className="container-page flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm sm:text-base">
           <Phone className="h-4 w-4 shrink-0" aria-hidden="true" />
-          <span>Besoin d&apos;aide ? Appelez </span>
+          <span>Besoin d&apos;aide ?</span>
           <a
             href={`tel:${business.phoneRaw}`}
             className="font-bold underline hover:no-underline focus-visible:ring-2 focus-visible:ring-white rounded"
           >
             {business.phone}
+          </a>
+          <span className="hidden sm:inline text-white/80">·</span>
+          <a
+            href={getWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold underline hover:no-underline focus-visible:ring-2 focus-visible:ring-white rounded"
+          >
+            WhatsApp
           </a>
         </div>
       </div>
@@ -46,25 +66,27 @@ export function Header() {
           <span className="text-sm text-gray-600 hidden sm:block">{business.slogan}</span>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-5" aria-label="Navigation principale">
-          {navLinks.map((link) => (
+        <nav
+          className="hidden xl:flex items-center gap-4 shrink-0"
+          aria-label="Navigation principale"
+        >
+          {desktopNavLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-base font-medium text-foreground hover:text-primary transition-colors min-h-[44px] flex items-center"
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors min-h-[44px] flex items-center whitespace-nowrap"
             >
               {link.label}
             </Link>
           ))}
-          <CallButton size="sm" />
-          <Button asChild size="sm">
+          <Button asChild size="sm" className="ml-1">
             <Link href="/devis">Devis gratuit</Link>
           </Button>
         </nav>
 
         <button
           type="button"
-          className="lg:hidden min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl border-2 border-primary/20 text-primary"
+          className="xl:hidden min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl border-2 border-primary/20 text-primary"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
           aria-controls="mobile-menu"
@@ -77,7 +99,7 @@ export function Header() {
       <nav
         id="mobile-menu"
         className={cn(
-          "lg:hidden border-t border-primary/10 bg-white",
+          "xl:hidden border-t border-primary/10 bg-white",
           open ? "block" : "hidden"
         )}
         aria-label="Navigation mobile"
@@ -94,6 +116,7 @@ export function Header() {
             </Link>
           ))}
           <CallButton className="mt-2 w-full" />
+          <WhatsAppButton className="w-full" />
           <Button asChild className="mt-2">
             <Link href="/devis" onClick={() => setOpen(false)}>
               Demander un devis gratuit

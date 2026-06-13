@@ -2,12 +2,19 @@ import { Resend } from "resend";
 import nodemailer from "nodemailer";
 import { business } from "@/config/content";
 import { quoteTrainActions } from "@/lib/train-deeplinks";
+import {
+  clientContactBlock,
+  emailButton,
+  emailInfoTable,
+  escapeHtml,
+  renderEmailLayout,
+} from "@/lib/email-template";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
-const resendFromEmail = process.env.FROM_EMAIL || "onboarding@resend.dev";
+const resendFromEmail = process.env.FROM_EMAIL || "contact@voisintech.fr";
 const replyToEmail = process.env.REPLY_TO_EMAIL || business.email;
 
 function getNotificationEmails(): string[] {
@@ -71,22 +78,11 @@ interface SendOptions {
   replyTo?: string;
 }
 
-function baseStyles() {
-  return `
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    color: #1a1a1a;
-    max-width: 600px;
-    margin: 0 auto;
-  `;
-}
-
-function escapeHtml(text: string) {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+function mailHeaders() {
+  return {
+    "X-Entity-Ref-ID": `voisintech-${Date.now()}`,
+    Precedence: "auto",
+  };
 }
 
 function trainLinksHtml(data: QuoteEmailData) {
@@ -98,55 +94,53 @@ function trainLinksHtml(data: QuoteEmailData) {
   const buttons = actions.workflow
     .map(
       (a) =>
-        `<a href="${a.href}" style="display:inline-block;margin:4px 8px 4px 0;padding:10px 16px;background:#1E6FA5;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;">${escapeHtml(a.label)}</a>`
+        `<div style="margin-bottom:10px;">
+          ${emailButton(a.emailHref ?? a.href, `${a.label} (${a.description})`)}
+          <p style="margin:4px 0 0;font-size:11px;color:#5c6570;word-break:break-all;">${escapeHtml(a.emailHref ?? a.href)}</p>
+        </div>`
+    )
+    .join("");
+
+  const postButtons = actions.postIntervention
+    .map(
+      (a) =>
+        `<div style="margin-bottom:10px;">
+          ${emailButton(a.emailHref ?? a.href, `${a.label} (${a.description})`, "#155A87")}
+        </div>`
     )
     .join("");
 
   return `
-    <div style="margin-top:24px;padding:16px;background:#F7FBFF;border-radius:8px;">
-      <p style="margin:0 0 12px;font-weight:bold;color:#1E6FA5;">Ouvrir dans vos apps (iPhone) :</p>
+    <div style="margin-top:24px;padding:18px;background:#f4f8fb;border-radius:12px;border:1px solid #e8edf2;">
+      <p style="margin:0 0 12px;font-weight:bold;color:#1E6FA5;font-size:15px;">Ouvrir dans vos apps Train (iPhone)</p>
+      <p style="margin:0 0 14px;font-size:13px;color:#5c6570;line-height:1.5;">Ouvrez cet email sur votre iPhone, puis touchez un bouton ci-dessous. Les liens passent par voisintech.fr puis ouvrent l'app installée.</p>
       ${buttons}
-      <p style="margin:12px 0 0;font-size:12px;color:#666;">Ouvrez cet email sur iPhone avec les apps Train installées.</p>
+      <p style="margin:18px 0 10px;font-size:13px;font-weight:bold;color:#155A87;">Après intervention</p>
+      ${postButtons}
     </div>
   `;
 }
 
-async function sendViaGmail(
-  to: string,
-  subject: string,
-  html: string,
-  text: string,
-  options?: SendOptions
-): Promise<EmailResult> {
-  const transport = getGmailTransport();
-  if (!transport) {
-    return {
-      success: false,
-      to,
-      skipped: true,
-      error: "GMAIL_APP_PASSWORD manquant dans .env",
-    };
-  }
+function trainLinksText(data: QuoteEmailData) {
+  const actions = quoteTrainActions({
+    ...data,
+    preferredDate: data.preferredDate ?? null,
+  });
 
-  try {
-    await transport.sendMail({
-      from: getFromAddress("gmail"),
-      to,
-      replyTo: options?.replyTo,
-      subject,
-      html,
-      text,
-      headers: {
-        "X-Entity-Ref-ID": `voisintech-${Date.now()}`,
-      },
-    });
-    console.log(`[Email/Gmail] Envoyé vers ${to}`);
-    return { success: true, provider: "gmail", to };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Erreur Gmail";
-    console.error(`[Email/Gmail] Échec vers ${to}:`, message);
-    return { success: false, provider: "gmail", to, error: message };
-  }
+  const lines = [
+    "",
+    "— Apps Train (ouvrir sur iPhone) —",
+    ...actions.workflow.map(
+      (a) => `${a.label} (${a.description}): ${a.emailHref ?? a.href}`
+    ),
+    "",
+    "Après intervention:",
+    ...actions.postIntervention.map(
+      (a) => `${a.label}: ${a.emailHref ?? a.href}`
+    ),
+  ];
+
+  return lines.join("\n");
 }
 
 async function sendViaResend(
@@ -172,9 +166,7 @@ async function sendViaResend(
     subject,
     html,
     text,
-    headers: {
-      "X-Entity-Ref-ID": `voisintech-${Date.now()}`,
-    },
+    headers: mailHeaders(),
   });
 
   if (result.error) {
@@ -186,6 +178,43 @@ async function sendViaResend(
   return { success: true, provider: "resend", to };
 }
 
+async function sendViaGmail(
+  to: string,
+  subject: string,
+  html: string,
+  text: string,
+  options?: SendOptions
+): Promise<EmailResult> {
+  const transport = getGmailTransport();
+  if (!transport) {
+    return {
+      success: false,
+      to,
+      skipped: true,
+      error: "GMAIL_APP_PASSWORD manquant",
+    };
+  }
+
+  try {
+    await transport.sendMail({
+      from: getFromAddress("gmail"),
+      to,
+      replyTo: options?.replyTo,
+      subject,
+      html,
+      text,
+      headers: mailHeaders(),
+    });
+    console.log(`[Email/Gmail] Envoyé vers ${to}`);
+    return { success: true, provider: "gmail", to };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Erreur Gmail";
+    console.error(`[Email/Gmail] Échec vers ${to}:`, message);
+    return { success: false, provider: "gmail", to, error: message };
+  }
+}
+
+/** Resend (domaine vérifié) en priorité — meilleure délivrabilité. */
 async function sendEmail(
   to: string,
   subject: string,
@@ -193,14 +222,14 @@ async function sendEmail(
   text: string,
   options?: SendOptions
 ): Promise<EmailResult> {
-  const gmailResult = await sendViaGmail(to, subject, html, text, options);
-  if (gmailResult.success) return gmailResult;
+  const resendResult = await sendViaResend(to, subject, html, text, options);
+  if (resendResult.success) return resendResult;
 
-  if (!gmailResult.skipped) {
-    console.warn(`[Email] Gmail échoué, tentative Resend pour ${to}`);
+  if (!resendResult.skipped) {
+    console.warn(`[Email] Resend échoué, tentative Gmail pour ${to}`);
   }
 
-  return sendViaResend(to, subject, html, text, options);
+  return sendViaGmail(to, subject, html, text, options);
 }
 
 async function sendToAllNotifications(
@@ -213,58 +242,78 @@ async function sendToAllNotifications(
 }
 
 export async function sendQuoteNotificationToOwner(data: QuoteEmailData) {
-  const html = `
-    <div style="${baseStyles()}">
-      <h2 style="color: #1E6FA5;">Nouvelle demande de devis — VoisinTech</h2>
-      <table style="width:100%; border-collapse: collapse;">
-        <tr><td style="padding:8px; border-bottom:1px solid #eee;"><strong>Appareil</strong></td><td style="padding:8px; border-bottom:1px solid #eee;">${escapeHtml(data.deviceType)}</td></tr>
-        <tr><td style="padding:8px; border-bottom:1px solid #eee;"><strong>Problème</strong></td><td style="padding:8px; border-bottom:1px solid #eee;">${escapeHtml(data.problemDesc)}</td></tr>
-        <tr><td style="padding:8px; border-bottom:1px solid #eee;"><strong>Nom</strong></td><td style="padding:8px; border-bottom:1px solid #eee;">${escapeHtml(data.name)}</td></tr>
-        <tr><td style="padding:8px; border-bottom:1px solid #eee;"><strong>Téléphone</strong></td><td style="padding:8px; border-bottom:1px solid #eee;"><a href="tel:${data.phone}">${escapeHtml(data.phone)}</a></td></tr>
-        <tr><td style="padding:8px; border-bottom:1px solid #eee;"><strong>Email client</strong></td><td style="padding:8px; border-bottom:1px solid #eee;"><a href="mailto:${data.email}">${escapeHtml(data.email)}</a></td></tr>
-        <tr><td style="padding:8px; border-bottom:1px solid #eee;"><strong>Adresse</strong></td><td style="padding:8px; border-bottom:1px solid #eee;">${escapeHtml(data.address)}, ${escapeHtml(data.city)}</td></tr>
-        <tr><td style="padding:8px; border-bottom:1px solid #eee;"><strong>Date souhaitée</strong></td><td style="padding:8px; border-bottom:1px solid #eee;">${escapeHtml(data.preferredDate || "Non précisée")}</td></tr>
-        <tr><td style="padding:8px; border-bottom:1px solid #eee;"><strong>Jours préférés</strong></td><td style="padding:8px; border-bottom:1px solid #eee;">${escapeHtml(data.preferredDays)}</td></tr>
-        <tr><td style="padding:8px;"><strong>Créneau</strong></td><td style="padding:8px;">${escapeHtml(data.preferredTime)}</td></tr>
-      </table>
-      ${trainLinksHtml(data)}
-      <p style="margin-top:24px; color:#666;">Répondez rapidement — le client attend un retour sous 2h.</p>
-    </div>
+  const bodyHtml = `
+    <h1 style="margin:0 0 8px;font-size:20px;color:#1E6FA5;">Nouvelle demande de devis</h1>
+    <p style="margin:0 0 16px;font-size:15px;color:#1a1a1a;line-height:1.6;">
+      Un client vient de demander un devis sur <strong>voisintech.fr</strong>. Répondez sous 2 h en journée.
+    </p>
+    ${emailInfoTable([
+      { label: "Client", value: escapeHtml(data.name) },
+      { label: "Téléphone", value: `<a href="tel:${escapeHtml(data.phone)}" style="color:#1E6FA5;font-weight:600;text-decoration:none;">${escapeHtml(data.phone)}</a>` },
+      { label: "Email", value: `<a href="mailto:${escapeHtml(data.email)}" style="color:#1E6FA5;text-decoration:none;">${escapeHtml(data.email)}</a>` },
+      { label: "Appareil", value: escapeHtml(data.deviceType) },
+      { label: "Problème", value: escapeHtml(data.problemDesc) },
+      { label: "Adresse", value: `${escapeHtml(data.address)}, ${escapeHtml(data.city)}` },
+      { label: "Date souhaitée", value: escapeHtml(data.preferredDate || "Non précisée") },
+      { label: "Jours préférés", value: escapeHtml(data.preferredDays) },
+      { label: "Créneau", value: escapeHtml(data.preferredTime) },
+    ])}
+    ${trainLinksHtml(data)}
   `;
 
+  const html = renderEmailLayout({
+    preheader: `Nouveau devis de ${data.name} — ${data.deviceType}`,
+    title: `Nouvelle demande de devis — ${data.name}`,
+    bodyHtml,
+  });
+
   const text = `Nouvelle demande de devis VoisinTech
-Appareil: ${data.deviceType}
-Problème: ${data.problemDesc}
-Nom: ${data.name}
+
+Client: ${data.name}
 Tél: ${data.phone}
 Email: ${data.email}
+Appareil: ${data.deviceType}
+Problème: ${data.problemDesc}
 Adresse: ${data.address}, ${data.city}
-Disponibilités: ${data.preferredDays} — ${data.preferredTime}`;
+Date: ${data.preferredDate || "—"}
+Disponibilités: ${data.preferredDays} — ${data.preferredTime}
+${trainLinksText(data)}`;
 
   return sendToAllNotifications(
-    `[VoisinTech] Nouvelle demande de devis — ${data.name}`,
+    `Nouveau devis — ${data.name} (${data.city})`,
     html,
     text
   );
 }
 
 export async function sendQuoteConfirmationToClient(data: QuoteEmailData) {
-  const html = `
-    <div style="${baseStyles()}">
-      <h2 style="color: #1E6FA5;">Votre demande a bien été reçue</h2>
-      <p>Bonjour ${escapeHtml(data.name)},</p>
-      <p>Merci pour votre confiance ! J'ai bien reçu votre demande de devis pour <strong>${escapeHtml(data.deviceType)}</strong>.</p>
-      <p><strong>Récapitulatif :</strong></p>
-      <ul>
-        <li>Problème : ${escapeHtml(data.problemDesc)}</li>
-        <li>Adresse : ${escapeHtml(data.address)}, ${escapeHtml(data.city)}</li>
-        <li>Disponibilités : ${escapeHtml(data.preferredDays)} — ${escapeHtml(data.preferredTime)}</li>
-      </ul>
-      <p>Je vous recontacte <strong>dans les 2 heures</strong> (en journée) pour convenir d'un rendez-vous.</p>
-      <p>En cas d'urgence, appelez-moi au <a href="tel:${business.phoneRaw}" style="color:#1E6FA5; font-weight:bold;">${business.phone}</a>.</p>
-      <p style="margin-top:24px;">À très bientôt,<br><strong>VoisinTech</strong><br>${business.slogan}<br>${business.website}</p>
-    </div>
+  const bodyHtml = `
+    <h1 style="margin:0 0 12px;font-size:20px;color:#1E6FA5;">Demande bien reçue</h1>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Bonjour <strong>${escapeHtml(data.name)}</strong>,</p>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
+      Merci pour votre confiance. J'ai bien reçu votre demande de devis pour
+      <strong>${escapeHtml(data.deviceType)}</strong>.
+    </p>
+    ${emailInfoTable([
+      { label: "Problème", value: escapeHtml(data.problemDesc) },
+      { label: "Adresse", value: `${escapeHtml(data.address)}, ${escapeHtml(data.city)}` },
+      { label: "Disponibilités", value: `${escapeHtml(data.preferredDays)} — ${escapeHtml(data.preferredTime)}` },
+    ])}
+    <p style="margin:16px 0 0;font-size:15px;line-height:1.6;">
+      Je vous recontacte <strong>dans les 2 heures</strong> (en journée) pour convenir d'un rendez-vous à domicile.
+    </p>
+    ${clientContactBlock()}
+    <p style="margin:16px 0 0;font-size:15px;line-height:1.6;">
+      À très bientôt,<br />
+      <strong>L'équipe VoisinTech</strong>
+    </p>
   `;
+
+  const html = renderEmailLayout({
+    preheader: "Votre demande de devis a bien été reçue. Réponse sous 2 h.",
+    title: "Demande de devis reçue — VoisinTech",
+    bodyHtml,
+  });
 
   const text = `Bonjour ${data.name},
 
@@ -276,13 +325,16 @@ Adresse: ${data.address}, ${data.city}
 Disponibilités: ${data.preferredDays} — ${data.preferredTime}
 
 Je vous recontacte dans les 2 heures en journée.
-Urgence: ${business.phone}
+Téléphone: ${business.phone}
+WhatsApp: ${business.phone}
 
-VoisinTech — ${business.website}`;
+À très bientôt,
+VoisinTech
+${business.website}`;
 
   return sendEmail(
     data.email,
-    "VoisinTech — Votre demande de devis a bien été reçue",
+    "VoisinTech — Votre demande de devis est bien reçue",
     html,
     text,
     { replyTo: replyToEmail }
@@ -290,16 +342,21 @@ VoisinTech — ${business.website}`;
 }
 
 export async function sendContactNotificationToOwner(data: ContactEmailData) {
-  const html = `
-    <div style="${baseStyles()}">
-      <h2 style="color: #1E6FA5;">Nouveau message de contact — VoisinTech</h2>
-      <p><strong>Nom :</strong> ${escapeHtml(data.name)}</p>
-      <p><strong>Email :</strong> ${escapeHtml(data.email)}</p>
-      <p><strong>Téléphone :</strong> ${escapeHtml(data.phone || "Non renseigné")}</p>
-      <p><strong>Message :</strong></p>
-      <p style="background:#F7FBFF; padding:16px; border-radius:8px;">${escapeHtml(data.message)}</p>
-    </div>
+  const bodyHtml = `
+    <h1 style="margin:0 0 8px;font-size:20px;color:#1E6FA5;">Nouveau message contact</h1>
+    ${emailInfoTable([
+      { label: "Nom", value: escapeHtml(data.name) },
+      { label: "Email", value: `<a href="mailto:${escapeHtml(data.email)}" style="color:#1E6FA5;text-decoration:none;">${escapeHtml(data.email)}</a>` },
+      { label: "Téléphone", value: escapeHtml(data.phone || "Non renseigné") },
+      { label: "Message", value: escapeHtml(data.message) },
+    ])}
   `;
+
+  const html = renderEmailLayout({
+    preheader: `Message de ${data.name} via le formulaire contact`,
+    title: `Nouveau message — ${data.name}`,
+    bodyHtml,
+  });
 
   const text = `Nouveau message VoisinTech
 Nom: ${data.name}
@@ -308,33 +365,44 @@ Tél: ${data.phone || "—"}
 Message: ${data.message}`;
 
   return sendToAllNotifications(
-    `[VoisinTech] Nouveau message — ${data.name}`,
+    `Nouveau message — ${data.name}`,
     html,
     text
   );
 }
 
 export async function sendContactConfirmationToClient(data: ContactEmailData) {
-  const html = `
-    <div style="${baseStyles()}">
-      <h2 style="color: #1E6FA5;">Message bien reçu</h2>
-      <p>Bonjour ${escapeHtml(data.name)},</p>
-      <p>Merci pour votre message. Je vous réponds dans les plus brefs délais, généralement sous 2 heures en journée.</p>
-      <p>Pour une demande urgente, appelez-moi au <a href="tel:${business.phoneRaw}" style="color:#1E6FA5; font-weight:bold;">${business.phone}</a>.</p>
-      <p style="margin-top:24px;">Cordialement,<br><strong>VoisinTech</strong><br>${business.website}</p>
-    </div>
+  const bodyHtml = `
+    <h1 style="margin:0 0 12px;font-size:20px;color:#1E6FA5;">Message bien reçu</h1>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Bonjour <strong>${escapeHtml(data.name)}</strong>,</p>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
+      Merci pour votre message. Je vous réponds dans les plus brefs délais, en général sous 2 heures en journée.
+    </p>
+    ${clientContactBlock()}
+    <p style="margin:16px 0 0;font-size:15px;line-height:1.6;">
+      Cordialement,<br />
+      <strong>L'équipe VoisinTech</strong>
+    </p>
   `;
+
+  const html = renderEmailLayout({
+    preheader: "Votre message a bien été reçu. Réponse sous 2 h.",
+    title: "Message reçu — VoisinTech",
+    bodyHtml,
+  });
 
   const text = `Bonjour ${data.name},
 
-Votre message VoisinTech a bien été reçu. Réponse sous 2h en journée.
-Urgence: ${business.phone}
+Votre message VoisinTech a bien été reçu. Réponse sous 2 h en journée.
+Téléphone: ${business.phone}
 
-VoisinTech — ${business.website}`;
+Cordialement,
+VoisinTech
+${business.website}`;
 
   return sendEmail(
     data.email,
-    "VoisinTech — Votre message a bien été reçu",
+    "VoisinTech — Votre message est bien reçu",
     html,
     text,
     { replyTo: replyToEmail }
