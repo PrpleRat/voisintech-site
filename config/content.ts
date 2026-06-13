@@ -1,0 +1,247 @@
+export interface Service {
+  id: string;
+  title: string;
+  shortDescription: string;
+  description: string;
+  icon: string;
+  price: string;
+  deviceType: string;
+}
+
+export const business = {
+  name: "VoisinTech",
+  slogan: "Votre voisin de confiance pour le numérique",
+  phone: "05 82 95 06 42",
+  phoneRaw: "0582950642",
+  email: "voisintech3@gmail.com",
+  website: "https://voisintech.fr",
+  city: "Toulouse",
+  serviceRadius: "15 à 30 km",
+  siret: "XXX XXX XXX XXXXX",
+  address: "Toulouse et agglomération",
+  googleReviewUrl: "https://g.page/r/voisintech/review",
+};
+
+export const services = [
+  {
+    id: "depannage",
+    title: "Dépannage PC & Mac",
+    shortDescription:
+      "Ordinateur lent, écran noir, messages d'erreur ? Je diagnostique et répare chez vous.",
+    description:
+      "Votre ordinateur ne démarre plus, rame ou affiche des messages incompréhensibles ? Je viens chez vous, j'explique le problème en français simple, et je le règle sur place. Pas de jargon, pas de surprise.",
+    icon: "Monitor",
+    price: "50€/h (40€/h tarif senior)",
+    deviceType: "PC Windows",
+  },
+  {
+    id: "smartphone",
+    title: "Smartphones & tablettes",
+    shortDescription:
+      "Configuration, transfert de données, applications, photos — je vous accompagne pas à pas.",
+    description:
+      "Nouveau téléphone, applications qui ne marchent pas, photos perdues ou stockage plein ? Je configure votre appareil et je vous montre comment l'utiliser en toute confiance.",
+    icon: "Smartphone",
+    price: "Forfait config : 50€",
+    deviceType: "Smartphone",
+  },
+  {
+    id: "wifi",
+    title: "Wi-Fi & réseau",
+    shortDescription:
+      "Connexion instable, zones sans signal, box mal configurée ? Je remets tout en ordre.",
+    description:
+      "Internet qui coupe, Wi-Fi faible dans certaines pièces, nouvel équipement à installer ? J'optimise votre réseau pour que toute la famille soit connectée sans prise de tête.",
+    icon: "Wifi",
+    price: "50€/h",
+    deviceType: "Box internet / Wi-Fi",
+  },
+  {
+    id: "securite",
+    title: "Sécurité & virus",
+    shortDescription:
+      "Virus, arnaques, mots de passe — je sécurise vos appareils et vous apprends à vous protéger.",
+    description:
+      "Pop-ups suspects, ordinateur qui se comporte bizarrement, peur des arnaques en ligne ? Je nettoie, sécurise et vous donne les bons réflexes pour naviguer sereinement.",
+    icon: "Shield",
+    price: "Pack sécurité : 60€",
+    deviceType: "PC Windows",
+  },
+  {
+    id: "demarches",
+    title: "Démarches en ligne",
+    shortDescription:
+      "CAF, impôts, Ameli, France Identité — je vous aide à faire vos démarches administratives.",
+    description:
+      "Vous bloquez sur un site administratif ou une application officielle ? Je vous accompagne pour créer vos comptes, remplir vos formulaires et envoyer vos documents en toute sécurité.",
+    icon: "FileText",
+    price: "50€/h",
+    deviceType: "PC Windows",
+  },
+  {
+    id: "formation",
+    title: "Formation à domicile",
+    shortDescription:
+      "Apprenez à votre rythme : mail, photos, visio, banque en ligne, avec patience et bienveillance.",
+    description:
+      "Vous voulez gagner en autonomie sur internet, vos emails ou vos photos ? Je vous forme chez vous, à votre rythme, avec des explications claires et beaucoup de patience.",
+    icon: "GraduationCap",
+    price: "40€/h",
+    deviceType: "Autre",
+  },
+];
+
+export const pricing = {
+  hourly: [
+    { label: "Dépannage à domicile", price: "50€/h", note: "40€/h tarif senior" },
+    { label: "Formation à domicile", price: "40€/h" },
+    { label: "Assistance à distance", price: "35€/h" },
+  ],
+  packages: [
+    { label: "Diagnostic complet", price: "30€", description: "Identification du problème + devis" },
+    { label: "Remise en état", price: "80€", description: "Nettoyage, optimisation, mise à jour" },
+    { label: "Configuration smartphone", price: "50€", description: "Transfert données + apps essentielles" },
+    { label: "Pack sécurité", price: "60€", description: "Antivirus + sauvegarde + conseils" },
+  ],
+  note: "Déplacement gratuit jusqu'à 15 km autour de Toulouse",
+};
+
+export const howItWorks = [
+  {
+    step: 1,
+    title: "Vous appelez ou remplissez le formulaire",
+    description:
+      "Décrivez votre problème par téléphone ou via notre formulaire simple. Réponse sous 2 heures en journée.",
+  },
+  {
+    step: 2,
+    title: "Je viens chez vous avec un diagnostic",
+    description:
+      "Rendez-vous à domicile à l'heure qui vous convient. Devis gratuit avant toute intervention.",
+  },
+  {
+    step: 3,
+    title: "Je répare et j'explique",
+    description:
+      "Intervention sur place, explications en français simple. Vous repartez avec un appareil qui fonctionne.",
+  },
+];
+
+export const trustBadges = [
+  { title: "Devis gratuit", description: "Avant chaque intervention" },
+  { title: "RC Pro assurée", description: "Intervention en toute sécurité" },
+  { title: "Tarif senior", description: "40€/h pour les 65 ans et plus" },
+  { title: "Sans jargon", description: "On parle français, pas informatique" },
+];
+
+export const testimonials = [
+  {
+    name: "Marie-Claire D.",
+    age: "72 ans",
+    rating: 5,
+    text: "Mon ordinateur ne voulait plus démarrer. Il est venu le jour même, m'a tout expliqué calmement, et maintenant je sais même faire mes mises à jour moi-même !",
+  },
+  {
+    name: "Philippe R.",
+    age: "Toulouse",
+    rating: 5,
+    text: "Configuration de mon nouveau smartphone en une heure. Patience incroyable, aucune question bête. Je recommande à tous mes amis seniors.",
+  },
+  {
+    name: "Sophie M.",
+    age: "Balma",
+    rating: 5,
+    text: "Wi-Fi qui ne marchait dans aucune chambre. Problème réglé en 45 minutes. Tarif clair, pas de mauvaise surprise. Un vrai voisin de confiance.",
+  },
+  {
+    name: "Jean-Pierre L.",
+    age: "68 ans",
+    rating: 5,
+    text: "Il m'a aidé pour mes démarches CAF et Ameli en ligne. J'avais peur de me tromper, il m'a guidé pas à pas. Merci !",
+  },
+];
+
+export const faq = [
+  {
+    question: "Quelle est votre zone d'intervention ?",
+    answer:
+      "J'interviens à Toulouse et dans un rayon de 15 à 30 km (Blagnac, Colomiers, Tournefeuille, Balma, L'Union, etc.). Le déplacement est gratuit jusqu'à 15 km.",
+  },
+  {
+    question: "Quel est le délai de réponse ?",
+    answer:
+      "Je réponds à toutes les demandes dans les 2 heures en journée (du lundi au samedi). Pour les urgences, appelez directement au 05 82 95 06 42.",
+  },
+  {
+    question: "Quels moyens de paiement acceptez-vous ?",
+    answer:
+      "Espèces, chèque et virement bancaire. Un reçu vous est remis après chaque intervention.",
+  },
+  {
+    question: "Y a-t-il une garantie sur les interventions ?",
+    answer:
+      "Oui, toutes les réparations sont garanties 30 jours. Si le même problème revient, je reviens gratuitement.",
+  },
+  {
+    question: "Proposez-vous un tarif pour les seniors ?",
+    answer:
+      "Oui ! Les personnes de 65 ans et plus bénéficient d'un tarif préférentiel à 40€/h au lieu de 50€/h pour le dépannage.",
+  },
+  {
+    question: "Puis-je avoir un devis avant l'intervention ?",
+    answer:
+      "Absolument. Le diagnostic est à 30€ et le devis est toujours gratuit et sans engagement avant toute réparation.",
+  },
+];
+
+export const about = {
+  story: `Bonjour, je suis votre technicien VoisinTech à Toulouse.
+
+Après des années à aider famille, voisins et amis avec leurs problèmes d'informatique, j'ai créé VoisinTech pour offrir ce même service de proximité à tous ceux qui se sentent dépassés par le numérique.
+
+Je sais que derrière chaque écran qui ne répond plus, il y a souvent de la frustration — parfois de l'inquiétude. Mon rôle, c'est de transformer ça en soulagement : je répare, j'explique, et je vous laisse plus autonome qu'avant.
+
+Pas de jargon technique, pas de facture surprise. Juste un voisin de confiance qui vient chez vous, prend le temps, et fait le travail.`,
+  values: [
+    {
+      title: "Patience",
+      description:
+        "Chaque personne avance à son rythme. Je répète, je reformule, je m'adapte — sans jamais vous faire sentir ridicule.",
+    },
+    {
+      title: "Transparence",
+      description:
+        "Devis gratuit, tarifs affichés, explications claires avant chaque intervention. Vous savez toujours où vous allez.",
+    },
+    {
+      title: "Proximité",
+      description:
+        "Un vrai service de voisinage : je viens chez vous, je connais le quartier, et je suis joignable facilement.",
+    },
+  ],
+};
+
+export const deviceTypes = [
+  "PC Windows",
+  "Mac",
+  "Smartphone",
+  "Tablette",
+  "Imprimante",
+  "Box internet / Wi-Fi",
+  "Autre",
+];
+
+export const timeSlots = [
+  { value: "matin", label: "Matin (8h-12h)" },
+  { value: "apres-midi", label: "Après-midi (12h-18h)" },
+  { value: "soir", label: "Soir (18h-20h)" },
+];
+
+export const weekDays = [
+  { value: "lundi", label: "Lundi" },
+  { value: "mardi", label: "Mardi" },
+  { value: "mercredi", label: "Mercredi" },
+  { value: "jeudi", label: "Jeudi" },
+  { value: "vendredi", label: "Vendredi" },
+  { value: "samedi", label: "Samedi" },
+];

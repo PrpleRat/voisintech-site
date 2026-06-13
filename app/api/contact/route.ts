@@ -1,0 +1,46 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import {
+  sendContactConfirmationToClient,
+  sendContactNotificationToOwner,
+} from "@/lib/email";
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { name, email, phone, message } = body;
+
+    if (!name || !email || !message) {
+      return NextResponse.json(
+        { error: "Nom, email et message sont requis." },
+        { status: 400 }
+      );
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json(
+        { error: "Adresse email invalide." },
+        { status: 400 }
+      );
+    }
+
+    const contact = await prisma.contactMessage.create({
+      data: { name, email, phone: phone || null, message },
+    });
+
+    const emailData = { name, email, phone, message };
+
+    await Promise.all([
+      sendContactNotificationToOwner(emailData),
+      sendContactConfirmationToClient(emailData),
+    ]);
+
+    return NextResponse.json({ success: true, id: contact.id });
+  } catch (error) {
+    console.error("[API Contact]", error);
+    return NextResponse.json(
+      { error: "Erreur serveur. Veuillez réessayer." },
+      { status: 500 }
+    );
+  }
+}

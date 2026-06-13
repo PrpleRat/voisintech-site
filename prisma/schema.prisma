@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model QuoteRequest {
+  id            String   @id @default(cuid())
+  deviceType    String
+  problemDesc   String
+  name          String
+  phone         String
+  email         String
+  address       String
+  city          String
+  preferredDays String
+  preferredTime String
+  preferredDate String?
+  status        String   @default("new")
+  createdAt     DateTime @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  name      String
+  rating    Int
+  comment   String
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+}
