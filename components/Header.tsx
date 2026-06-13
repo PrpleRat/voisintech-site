@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Menu, X, Phone } from "lucide-react";
 import { business } from "@/config/content";
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/BrandLogo";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -35,13 +36,7 @@ export function Header() {
       </div>
 
       <div className="container-page flex items-center justify-between py-4">
-        <Link
-          href="/"
-          className="flex flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
-        >
-          <span className="text-2xl font-bold text-primary">{business.name}</span>
-          <span className="text-sm text-gray-600 hidden sm:block">{business.slogan}</span>
-        </Link>
+        <BrandLogo priority showSlogan />
 
         <nav className="hidden lg:flex items-center gap-6" aria-label="Navigation principale">
           {navLinks.map((link) => (

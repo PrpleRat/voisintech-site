@@ -1,0 +1,220 @@
+export interface QuoteLinkData {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  city: string;
+  deviceType: string;
+  problemDesc: string;
+  preferredDate?: string | null;
+}
+
+export interface ContactLinkData {
+  name: string;
+  email: string;
+  phone?: string | null;
+  message: string;
+}
+
+function buildDeepLink(
+  scheme: string,
+  host: string,
+  path = "",
+  params: Record<string, string | undefined> = {}
+) {
+  let url = `${scheme}://${host}`;
+  if (path) {
+    url += path.startsWith("/") ? path : `/${path}`;
+  }
+
+  const query = Object.entries(params)
+    .filter(([, value]) => value)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value!)}`)
+    .join("&");
+
+  if (query) url += `?${query}`;
+  return url;
+}
+
+function fullAddress(data: Pick<QuoteLinkData, "address" | "city">) {
+  return `${data.address}, ${data.city}`;
+}
+
+function interventionNotes(data: QuoteLinkData) {
+  return `${data.deviceType} — ${data.problemDesc}`;
+}
+
+/** AgendaTrain — nouvelle intervention (prefill prêt pour Phase 2 iOS) */
+export function agendaNewIntervention(data: QuoteLinkData) {
+  return buildDeepLink("agendatrain", "interventions", "new", {
+    client: data.name,
+    phone: data.phone,
+    address: fullAddress(data),
+    date: data.preferredDate?.split("T")[0],
+    notes: interventionNotes(data),
+  });
+}
+
+export function agendaOpen() {
+  return buildDeepLink("agendatrain", "agenda");
+}
+
+export function agendaClientSearch(name: string) {
+  return buildDeepLink("agendatrain", "clients", "", { name });
+}
+
+/** TrainCRM — nouveau client */
+export function crmNewClient(data: Pick<QuoteLinkData, "name" | "phone" | "email" | "address" | "city">) {
+  return buildDeepLink("traincrm", "clients", "new", {
+    name: data.name,
+    phone: data.phone,
+    email: data.email,
+    address: fullAddress(data),
+  });
+}
+
+export function crmClientSearch(name: string) {
+  return buildDeepLink("traincrm", "clients", "", { name });
+}
+
+export function crmNewFollowUp() {
+  return buildDeepLink("traincrm", "relances", "new");
+}
+
+/** FactuTrain — nouveau devis */
+export function factuTrainNewQuote(data: QuoteLinkData) {
+  return buildDeepLink("factutrain", "quotes", "new", {
+    client: data.name,
+    phone: data.phone,
+    email: data.email,
+    address: fullAddress(data),
+    description: interventionNotes(data),
+  });
+}
+
+/** FactuTrain — nouvelle facture (prefill supporté par l'app) */
+export function factuTrainNewInvoice(data: QuoteLinkData, amount = "50.00") {
+  const date = new Date().toISOString().split("T")[0];
+  return buildDeepLink("factutrain", "invoices", "new", {
+    amount,
+    client: data.name,
+    label: `Dépannage ${data.deviceType}`,
+    date,
+  });
+}
+
+/** TrainCA — déclarer un CA (prefill supporté par l'app) */
+export function trainCANewRevenue(data: QuoteLinkData, amount = "50.00") {
+  const date = new Date().toISOString().split("T")[0];
+  return buildDeepLink("trainca", "revenue", "add", {
+    amount,
+    client: data.name,
+    label: `Dépannage ${data.deviceType}`,
+    date,
+  });
+}
+
+export function trainCADashboard() {
+  return buildDeepLink("trainca", "dashboard");
+}
+
+export interface TrainAppAction {
+  id: string;
+  label: string;
+  href: string;
+  description?: string;
+  variant?: "default" | "outline" | "secondary";
+}
+
+export function quoteTrainActions(data: QuoteLinkData): {
+  workflow: TrainAppAction[];
+  postIntervention: TrainAppAction[];
+} {
+  return {
+    workflow: [
+      {
+        id: "crm",
+        label: "Fiche client CRM",
+        href: crmNewClient(data),
+        description: "TrainCRM",
+        variant: "outline",
+      },
+      {
+        id: "agenda",
+        label: "Planifier RDV",
+        href: agendaNewIntervention(data),
+        description: "AgendaTrain",
+        variant: "outline",
+      },
+      {
+        id: "quote",
+        label: "Créer devis",
+        href: factuTrainNewQuote(data),
+        description: "FactuTrain",
+        variant: "outline",
+      },
+      {
+        id: "agenda-view",
+        label: "Voir agenda",
+        href: agendaOpen(),
+        description: "AgendaTrain",
+        variant: "secondary",
+      },
+    ],
+    postIntervention: [
+      {
+        id: "invoice",
+        label: "Facturer",
+        href: factuTrainNewInvoice(data),
+        description: "FactuTrain",
+        variant: "outline",
+      },
+      {
+        id: "revenue",
+        label: "Déclarer CA",
+        href: trainCANewRevenue(data),
+        description: "TrainCA",
+        variant: "outline",
+      },
+      {
+        id: "trainca",
+        label: "Dashboard CA",
+        href: trainCADashboard(),
+        description: "TrainCA",
+        variant: "secondary",
+      },
+    ],
+  };
+}
+
+export function contactTrainActions(data: ContactLinkData): TrainAppAction[] {
+  return [
+    {
+      id: "crm",
+      label: "Ajouter au CRM",
+      href: crmNewClient({
+        name: data.name,
+        phone: data.phone || "",
+        email: data.email,
+        address: "",
+        city: "",
+      }),
+      description: "TrainCRM",
+      variant: "outline",
+    },
+    {
+      id: "crm-search",
+      label: "Chercher client",
+      href: crmClientSearch(data.name),
+      description: "TrainCRM",
+      variant: "secondary",
+    },
+    {
+      id: "followup",
+      label: "Créer relance",
+      href: crmNewFollowUp(),
+      description: "TrainCRM",
+      variant: "outline",
+    },
+  ];
+}

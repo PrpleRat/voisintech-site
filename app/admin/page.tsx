@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
@@ -41,7 +42,10 @@ export default function AdminLoginPage() {
   return (
     <div className="section-padding">
       <div className="container-page max-w-md">
-        <h1 className="text-3xl font-bold mb-6">Administration VoisinTech</h1>
+        <div className="flex justify-center mb-6">
+          <BrandLogo href="/" imageClassName="h-20" />
+        </div>
+        <h1 className="text-3xl font-bold mb-6 text-center">Administration</h1>
         <form onSubmit={login} className="card space-y-5">
           <div>
             <Label htmlFor="password">Mot de passe</Label>

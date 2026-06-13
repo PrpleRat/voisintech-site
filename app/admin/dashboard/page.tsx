@@ -14,6 +14,8 @@ import {
   Monitor,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { TrainAppLinks } from "@/components/TrainAppLinks";
+import { contactTrainActions, quoteTrainActions } from "@/lib/train-deeplinks";
 
 interface Quote {
   id: string;
@@ -100,6 +102,8 @@ function QuoteCard({
   onToggle: () => void;
   onUpdateStatus: (id: string, status: string) => void;
 }) {
+  const trainActions = quoteTrainActions(quote);
+
   return (
     <article className="card">
       <button
@@ -205,6 +209,18 @@ function QuoteCard({
               <a href={`mailto:${quote.email}?subject=Votre demande VoisinTech`}>Répondre par email</a>
             </Button>
           </div>
+
+          <TrainAppLinks
+            title="Apps Train — traiter la demande"
+            actions={trainActions.workflow}
+          />
+
+          {(quote.status === "contacted" || quote.status === "done") && (
+            <TrainAppLinks
+              title="Après intervention"
+              actions={trainActions.postIntervention}
+            />
+          )}
         </div>
       )}
     </article>
@@ -392,6 +408,10 @@ export default function AdminDashboardPage() {
                     <a href={`mailto:${c.email}`}>Répondre</a>
                   </Button>
                 </div>
+                <TrainAppLinks
+                  title="Apps Train"
+                  actions={contactTrainActions(c)}
+                />
               </div>
             ))}
             {contacts.length === 0 && (
