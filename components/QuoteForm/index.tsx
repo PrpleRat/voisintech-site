@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { business, services } from "@/config/content";
 import { cn } from "@/lib/utils";
 
-const initialStep1: Step1Data = { deviceType: "", problemDesc: "" };
 const initialStep2: Step2Data = { name: "", phone: "", email: "", address: "", city: "" };
 const initialStep3: Step3Data = { preferredDate: "", preferredDays: [], preferredTime: "" };
 
