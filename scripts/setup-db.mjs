@@ -5,18 +5,36 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const tursoUrl = process.env.TURSO_DATABASE_URL;
-const tursoToken = process.env.TURSO_AUTH_TOKEN;
+
+function getTursoConfig() {
+  const url =
+    process.env.TURSO_DATABASE_URL ||
+    (process.env.DATABASE_URL?.startsWith("libsql://")
+      ? process.env.DATABASE_URL.split("?")[0]
+      : null);
+
+  let authToken = process.env.TURSO_AUTH_TOKEN;
+
+  if (!authToken && process.env.DATABASE_URL?.includes("authToken=")) {
+    const match = process.env.DATABASE_URL.match(/authToken=([^&]+)/);
+    authToken = match?.[1] ? decodeURIComponent(match[1]) : undefined;
+  }
+
+  if (url && authToken) return { url, authToken };
+  return null;
+}
 
 async function setupTurso() {
-  if (!tursoUrl || !tursoToken) {
-    console.log("[DB] Pas de Turso configuré — migration locale Prisma");
+  const turso = getTursoConfig();
+
+  if (!turso) {
+    console.log("[DB] Pas de Turso — migration locale Prisma");
     execSync("npx prisma migrate deploy", { stdio: "inherit" });
     return;
   }
 
-  console.log("[DB] Configuration Turso...");
-  const client = createClient({ url: tursoUrl, authToken: tursoToken });
+  console.log("[DB] Configuration Turso:", turso.url);
+  const client = createClient({ url: turso.url, authToken: turso.authToken });
 
   const migrationPath = path.join(
     __dirname,

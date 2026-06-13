@@ -1,19 +1,25 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSQL } from "@prisma/adapter-libsql";
 import { createClient } from "@libsql/client";
+import { getTursoConfig, isProductionWithoutTurso } from "./turso-config";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
 function createPrismaClient() {
-  const tursoUrl = process.env.TURSO_DATABASE_URL;
-  const tursoToken = process.env.TURSO_AUTH_TOKEN;
+  const turso = getTursoConfig();
 
-  if (tursoUrl && tursoToken) {
+  if (isProductionWithoutTurso()) {
+    console.error(
+      "[Prisma] Production sans Turso — configurez TURSO_AUTH_TOKEN et TURSO_DATABASE_URL (ou DATABASE_URL libsql://) sur Vercel"
+    );
+  }
+
+  if (turso) {
     const libsql = createClient({
-      url: tursoUrl,
-      authToken: tursoToken,
+      url: turso.url,
+      authToken: turso.authToken,
     });
     const adapter = new PrismaLibSQL(libsql);
     return new PrismaClient({
