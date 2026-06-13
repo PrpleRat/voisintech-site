@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { getTursoConfig } from "@/lib/turso-config";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
     const turso = getTursoConfig();
+    const prisma = await getPrisma();
     const count = await prisma.quoteRequest.count();
     return NextResponse.json({
       ok: true,

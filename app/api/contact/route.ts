@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import {
   sendContactConfirmationToClient,
   sendContactNotificationToOwner,
@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const prisma = await getPrisma();
     const contact = await prisma.contactMessage.create({
       data: { name, email, phone: phone || null, message },
     });

@@ -24,48 +24,41 @@ function getTursoConfig() {
   return null;
 }
 
+function loadSchemaStatements() {
+  const schemaPath = path.join(__dirname, "turso-schema.sql");
+  const sql = fs.readFileSync(schemaPath, "utf8");
+
+  return sql
+    .split(";")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
 async function setupTurso() {
   const turso = getTursoConfig();
 
   if (!turso) {
+    if (process.env.VERCEL === "1") {
+      console.error(
+        "[DB] ERREUR: Build Vercel sans Turso. Ajoutez TURSO_AUTH_TOKEN + TURSO_DATABASE_URL (disponibles au BUILD)."
+      );
+      process.exit(1);
+    }
     console.log("[DB] Pas de Turso — migration locale Prisma");
     execSync("npx prisma migrate deploy", { stdio: "inherit" });
     return;
   }
 
-  console.log("[DB] Configuration Turso:", turso.url);
+  console.log("[DB] Migration Turso:", turso.url);
   const client = createClient({ url: turso.url, authToken: turso.authToken });
-
-  const migrationPath = path.join(
-    __dirname,
-    "..",
-    "prisma",
-    "migrations",
-    "20260613114607_init",
-    "migration.sql"
-  );
-  const sql = fs.readFileSync(migrationPath, "utf8");
-
-  const statements = sql
-    .split(";")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith("--"));
+  const statements = loadSchemaStatements();
 
   for (const statement of statements) {
-    try {
-      await client.execute(statement);
-      console.log("[DB] OK:", statement.slice(0, 50) + "...");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      if (message.includes("already exists")) {
-        console.log("[DB] Table déjà existante — OK");
-      } else {
-        throw err;
-      }
-    }
+    await client.execute(statement);
+    console.log("[DB] OK:", statement.slice(0, 60) + "...");
   }
 
-  console.log("[DB] Turso prêt.");
+  console.log("[DB] Turso prêt — 3 tables créées.");
 }
 
 setupTurso().catch((err) => {

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Star, ExternalLink } from "lucide-react";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { ReviewCard } from "@/components/ReviewCard";
 import { ReviewForm } from "@/components/ReviewForm";
 import { testimonials, business } from "@/config/content";
@@ -17,6 +17,7 @@ export const dynamic = "force-dynamic";
 export default async function AvisPage() {
   let dbReviews: { name: string; rating: number; comment: string; createdAt: Date }[] = [];
   try {
+    const prisma = await getPrisma();
     dbReviews = await prisma.review.findMany({
       where: { status: "approved" },
       orderBy: { createdAt: "desc" },

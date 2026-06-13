@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
+    const prisma = await getPrisma();
     const reviews = await prisma.review.findMany({
       where: { status: "approved" },
       orderBy: { createdAt: "desc" },
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const prisma = await getPrisma();
     const review = await prisma.review.create({
       data: {
         name,

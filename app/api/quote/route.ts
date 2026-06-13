@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import {
   sendQuoteConfirmationToClient,
   sendQuoteNotificationToOwner,
@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const prisma = await getPrisma();
     const quote = await prisma.quoteRequest.create({
       data: {
         deviceType,

@@ -5,7 +5,7 @@ import {
   verifyAdminPassword,
   isAdminAuthenticated,
 } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,6 +31,8 @@ export async function POST(request: NextRequest) {
     if (!authenticated) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
+
+    const prisma = await getPrisma();
 
     if (action === "update-status") {
       if (type === "quote" && id && status) {
@@ -96,6 +98,7 @@ export async function GET() {
   }
 
   try {
+    const prisma = await getPrisma();
     const [quotes, contacts, reviews] = await Promise.all([
       prisma.quoteRequest.findMany({ orderBy: { createdAt: "desc" } }),
       prisma.contactMessage.findMany({ orderBy: { createdAt: "desc" } }),
