@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
+import { isSpamSubmission } from "@/lib/antispam";
+import { sendOwnerSms } from "@/lib/sms";
 import {
   sendContactConfirmationToClient,
   sendContactNotificationToOwner,
@@ -8,6 +10,11 @@ import {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    if (isSpamSubmission(body)) {
+      return NextResponse.json({ success: true, id: "spam-blocked" });
+    }
+
     const { name, email, phone, message } = body;
 
     if (!name || !email || !message) {
@@ -35,6 +42,8 @@ export async function POST(request: NextRequest) {
       sendContactNotificationToOwner(emailData),
       sendContactConfirmationToClient(emailData),
     ]);
+
+    await sendOwnerSms(`[VoisinTech] Nouveau message: ${name} — ${email}`);
 
     return NextResponse.json({ success: true, id: contact.id });
   } catch (error) {

@@ -249,6 +249,8 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"quotes" | "contacts">("quotes");
+  const [quoteFilter, setQuoteFilter] = useState<"all" | "new" | "contacted" | "done">("all");
+  const [contactFilter, setContactFilter] = useState<"all" | "new" | "done">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -343,6 +345,15 @@ export default function AdminDashboardPage() {
     );
   }
 
+  const filteredQuotes = quotes.filter(
+    (q) => quoteFilter === "all" || q.status === quoteFilter
+  );
+  const filteredContacts = contacts.filter((c) => {
+    if (contactFilter === "all") return true;
+    if (contactFilter === "new") return c.status === "new";
+    return c.status !== "new";
+  });
+
   return (
     <div className="section-padding">
       <div className="container-page">
@@ -396,7 +407,26 @@ export default function AdminDashboardPage() {
 
         {tab === "quotes" && (
           <div className="space-y-4">
-            {quotes.map((q) => (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {(
+                [
+                  { value: "all", label: "Tous" },
+                  { value: "new", label: "Nouveaux" },
+                  { value: "contacted", label: "Contactés" },
+                  { value: "done", label: "Terminés" },
+                ] as const
+              ).map((f) => (
+                <Button
+                  key={f.value}
+                  size="sm"
+                  variant={quoteFilter === f.value ? "default" : "outline"}
+                  onClick={() => setQuoteFilter(f.value)}
+                >
+                  {f.label}
+                </Button>
+              ))}
+            </div>
+            {filteredQuotes.map((q) => (
               <QuoteCard
                 key={q.id}
                 quote={q}
@@ -407,7 +437,7 @@ export default function AdminDashboardPage() {
                 deleting={deletingId === q.id}
               />
             ))}
-            {quotes.length === 0 && (
+            {filteredQuotes.length === 0 && (
               <p className="text-center text-gray-500 py-12">Aucune demande de devis</p>
             )}
           </div>
@@ -415,7 +445,25 @@ export default function AdminDashboardPage() {
 
         {tab === "contacts" && (
           <div className="space-y-4">
-            {contacts.map((c) => (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {(
+                [
+                  { value: "all", label: "Tous" },
+                  { value: "new", label: "Nouveaux" },
+                  { value: "done", label: "Traités" },
+                ] as const
+              ).map((f) => (
+                <Button
+                  key={f.value}
+                  size="sm"
+                  variant={contactFilter === f.value ? "default" : "outline"}
+                  onClick={() => setContactFilter(f.value)}
+                >
+                  {f.label}
+                </Button>
+              ))}
+            </div>
+            {filteredContacts.map((c) => (
               <div key={c.id} className="card">
                 <div className="flex justify-between items-start mb-2">
                   <div>
@@ -469,7 +517,7 @@ export default function AdminDashboardPage() {
                 />
               </div>
             ))}
-            {contacts.length === 0 && (
+            {filteredContacts.length === 0 && (
               <p className="text-center text-gray-500 py-12">Aucun message</p>
             )}
           </div>

@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Star, Loader2, CheckCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { FormGuardFields, getFormGuardPayload } from "@/components/FormGuard";
 
 export function ReviewForm() {
+  const formRef = useRef<HTMLFormElement>(null);
   const [form, setForm] = useState({ name: "", rating: 5, comment: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -26,7 +28,7 @@ export function ReviewForm() {
       const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, ...getFormGuardPayload(formRef) }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -56,7 +58,8 @@ export function ReviewForm() {
   }
 
   return (
-    <form onSubmit={submit} className="card space-y-5">
+    <form ref={formRef} onSubmit={submit} className="card space-y-5 relative">
+      <FormGuardFields />
       <h3 className="text-xl font-bold">Laisser un avis</h3>
 
       <div>

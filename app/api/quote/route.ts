@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
+import { isSpamSubmission } from "@/lib/antispam";
+import { sendOwnerSms } from "@/lib/sms";
 import {
   sendQuoteConfirmationToClient,
   sendQuoteNotificationToOwner,
@@ -8,6 +10,10 @@ import {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    if (isSpamSubmission(body)) {
+      return NextResponse.json({ success: true, id: "spam-blocked" });
+    }
 
     const {
       deviceType,
@@ -82,6 +88,10 @@ export async function POST(request: NextRequest) {
     if (!clientOk) {
       console.error("[API Quote] Échec confirmation client:", clientResult);
     }
+
+    await sendOwnerSms(
+      `[VoisinTech] Nouveau devis: ${name} — ${deviceType} — ${phone}. Voir admin.`
+    );
 
     return NextResponse.json({
       success: true,

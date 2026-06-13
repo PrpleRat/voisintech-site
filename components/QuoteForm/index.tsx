@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { Step1, Step1Data } from "./Step1";
@@ -9,6 +9,7 @@ import { Step3, Step3Data } from "./Step3";
 import { Button } from "@/components/ui/button";
 import { business, services } from "@/config/content";
 import { cn } from "@/lib/utils";
+import { FormGuardFields, getFormGuardPayload } from "@/components/FormGuard";
 
 const initialStep2: Step2Data = { name: "", phone: "", email: "", address: "", city: "" };
 const initialStep3: Step3Data = { preferredDate: "", preferredDays: [], preferredTime: "" };
@@ -29,6 +30,7 @@ export function QuoteForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const validateStep1 = () => {
     const e: Record<string, string> = {};
@@ -92,6 +94,7 @@ export function QuoteForm() {
           ...step2,
           ...step3,
           preferredDays: step3.preferredDays,
+          ...getFormGuardPayload(formRef),
         }),
       });
 
@@ -161,13 +164,16 @@ export function QuoteForm() {
 
       {/* Progressive enhancement: noscript fallback handled via API */}
       <form
+        ref={formRef}
         onSubmit={(e) => {
           e.preventDefault();
           if (step < 3) next();
           else submit();
         }}
         noValidate
+        className="relative"
       >
+        <FormGuardFields />
         {step === 1 && (
           <Step1
             data={step1}

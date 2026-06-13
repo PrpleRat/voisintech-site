@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
+import { isSpamSubmission } from "@/lib/antispam";
 
 export async function GET() {
   try {
@@ -18,6 +19,11 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    if (isSpamSubmission(body)) {
+      return NextResponse.json({ success: true, id: "spam-blocked" });
+    }
+
     const { name, rating, comment } = body;
 
     if (!name || !comment) {

@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { business } from "@/config/content";
-import { BrandLogo } from "@/components/BrandLogo";
 
 const footerLinks = [
   { href: "/services", label: "Services" },
   { href: "/devis", label: "Devis gratuit" },
+  { href: "/villes", label: "Villes desservies" },
+  { href: "/blog", label: "Blog & FAQ" },
   { href: "/avis", label: "Avis clients" },
   { href: "/a-propos", label: "À propos" },
   { href: "/contact", label: "Contact" },
@@ -19,8 +20,8 @@ export function Footer() {
       <div className="container-page section-padding">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
           <div>
-            <BrandLogo href={undefined} imageClassName="h-16" />
-            <p className="text-accent/90 mb-4 mt-3">{business.slogan}</p>
+            <h2 className="text-2xl font-bold mb-2">{business.name}</h2>
+            <p className="text-accent/90 mb-4">{business.slogan}</p>
             <p className="text-white/80 text-base leading-relaxed">
               Dépannage informatique, formation et assistance numérique à domicile
               à {business.city} et environs ({business.serviceRadius}).

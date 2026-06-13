@@ -5,13 +5,15 @@ import { useState } from "react";
 import { Menu, X, Phone } from "lucide-react";
 import { business } from "@/config/content";
 import { Button } from "@/components/ui/button";
-import { BrandLogo } from "@/components/BrandLogo";
+import { CallButton } from "@/components/CallButton";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "/", label: "Accueil" },
   { href: "/services", label: "Services & Tarifs" },
   { href: "/devis", label: "Demander un devis" },
+  { href: "/villes", label: "Villes" },
+  { href: "/blog", label: "Blog & FAQ" },
   { href: "/avis", label: "Avis clients" },
   { href: "/a-propos", label: "À propos" },
   { href: "/contact", label: "Contact" },
@@ -36,9 +38,15 @@ export function Header() {
       </div>
 
       <div className="container-page flex items-center justify-between py-4">
-        <BrandLogo priority showSlogan />
+        <Link
+          href="/"
+          className="flex flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+        >
+          <span className="text-2xl font-bold text-primary">{business.name}</span>
+          <span className="text-sm text-gray-600 hidden sm:block">{business.slogan}</span>
+        </Link>
 
-        <nav className="hidden lg:flex items-center gap-6" aria-label="Navigation principale">
+        <nav className="hidden lg:flex items-center gap-5" aria-label="Navigation principale">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -48,6 +56,7 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          <CallButton size="sm" />
           <Button asChild size="sm">
             <Link href="/devis">Devis gratuit</Link>
           </Button>
@@ -84,6 +93,7 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          <CallButton className="mt-2 w-full" />
           <Button asChild className="mt-2">
             <Link href="/devis" onClick={() => setOpen(false)}>
               Demander un devis gratuit

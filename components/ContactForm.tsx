@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { FormGuardFields, getFormGuardPayload } from "@/components/FormGuard";
 
 export function ContactForm() {
+  const formRef = useRef<HTMLFormElement>(null);
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -33,7 +35,7 @@ export function ContactForm() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, ...getFormGuardPayload(formRef) }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -64,7 +66,8 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={submit} noValidate className="card space-y-5">
+    <form ref={formRef} onSubmit={submit} noValidate className="card space-y-5 relative">
+      <FormGuardFields />
       <div>
         <Label htmlFor="contact-name">Nom *</Label>
         <Input

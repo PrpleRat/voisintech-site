@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Phone, ArrowRight } from "lucide-react";
 import { business } from "@/config/content";
 import { Button } from "@/components/ui/button";
+import { CallButton } from "@/components/CallButton";
 
 export function Hero() {
   const reduceMotion = useReducedMotion();
@@ -26,6 +27,7 @@ export function Hero() {
               sans jargon, avec patience.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
+              <CallButton />
               <Button asChild size="lg">
                 <Link href="/devis">
                   Demander un devis gratuit
