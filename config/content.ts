@@ -244,4 +244,5 @@ export const weekDays = [
   { value: "jeudi", label: "Jeudi" },
   { value: "vendredi", label: "Vendredi" },
   { value: "samedi", label: "Samedi" },
+  { value: "dimanche", label: "Dimanche" },
 ];

@@ -68,6 +68,7 @@ function formatPreferredDays(json: string) {
       jeudi: "Jeudi",
       vendredi: "Vendredi",
       samedi: "Samedi",
+      dimanche: "Dimanche",
     };
     return days.map((d) => labels[d] || d).join(", ");
   } catch {
