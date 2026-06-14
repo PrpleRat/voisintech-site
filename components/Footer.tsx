@@ -1,13 +1,18 @@
+"use client";
+
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { business } from "@/config/content";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
+import { useRegion } from "@/components/RegionProvider";
 
 const footerLinks = [
   { href: "/services", label: "Services" },
   { href: "/devis", label: "Devis gratuit" },
   { href: "/villes", label: "Villes desservies" },
+  { href: "/pro", label: "Espace Pro" },
+  { href: "/materiel", label: "Matériel" },
   { href: "/blog", label: "Blog & FAQ" },
   { href: "/avis", label: "Avis clients" },
   { href: "/a-propos", label: "À propos" },
@@ -17,6 +22,8 @@ const footerLinks = [
 ];
 
 export function Footer() {
+  const { config } = useRegion();
+
   return (
     <footer className="bg-primary text-white mt-auto">
       <div className="container-page section-padding">
@@ -26,7 +33,7 @@ export function Footer() {
             <p className="text-accent/90 mb-4">{business.slogan}</p>
             <p className="text-white/80 text-base leading-relaxed">
               Dépannage informatique, formation et assistance numérique à domicile
-              à {business.city} et environs ({business.serviceRadius}).
+              à {config.hubCity} et environs ({config.serviceRadius}).
             </p>
           </div>
 
@@ -64,7 +71,7 @@ export function Footer() {
               </li>
               <li className="flex items-start gap-3 text-white/80">
                 <MapPin className="h-5 w-5 shrink-0 mt-1" aria-hidden="true" />
-                <span>{business.address}</span>
+                <span>{config.address}</span>
               </li>
             </ul>
           </div>

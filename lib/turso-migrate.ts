@@ -32,6 +32,19 @@ export async function ensureTursoTables() {
     for (const statement of statements) {
       await client.execute(statement);
     }
+
+    const alterStatements = [
+      `ALTER TABLE QuoteRequest ADD COLUMN scheduledAt DATETIME`,
+      `ALTER TABLE QuoteRequest ADD COLUMN scheduledDurationMinutes INTEGER`,
+    ];
+
+    for (const statement of alterStatements) {
+      try {
+        await client.execute(statement);
+      } catch {
+        // Colonne déjà présente
+      }
+    }
   })();
 
   return migrationPromise;

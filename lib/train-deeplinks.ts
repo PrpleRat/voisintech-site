@@ -55,6 +55,21 @@ export function agendaNewIntervention(data: QuoteLinkData) {
   });
 }
 
+/** AgendaTrain — intervention avec créneau suggéré (date + heure) */
+export function agendaNewInterventionAt(
+  data: QuoteLinkData,
+  slot: { isoDate: string; time: string }
+) {
+  return buildDeepLink("agendatrain", "interventions", "new", {
+    client: data.name,
+    phone: data.phone,
+    address: fullAddress(data),
+    date: slot.isoDate,
+    time: slot.time,
+    notes: interventionNotes(data),
+  });
+}
+
 export function agendaOpen() {
   return buildDeepLink("agendatrain", "agenda");
 }

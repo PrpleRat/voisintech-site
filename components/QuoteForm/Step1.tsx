@@ -15,9 +15,10 @@ interface Step1Props {
   onChange: (data: Step1Data) => void;
   errors: Partial<Record<keyof Step1Data, string>>;
   selectedService?: string;
+  problemPlaceholder?: string;
 }
 
-export function Step1({ data, onChange, errors, selectedService }: Step1Props) {
+export function Step1({ data, onChange, errors, selectedService, problemPlaceholder }: Step1Props) {
   return (
     <div className="space-y-6">
       <div>
@@ -70,7 +71,10 @@ export function Step1({ data, onChange, errors, selectedService }: Step1Props) {
           name="problemDesc"
           value={data.problemDesc}
           onChange={(e) => onChange({ ...data, problemDesc: e.target.value })}
-          placeholder="Exemple : Mon ordinateur est très lent depuis une semaine, et des fenêtres bizarres s'ouvrent toutes seules..."
+          placeholder={
+            problemPlaceholder ??
+            "Exemple : Mon ordinateur est très lent depuis une semaine, et des fenêtres bizarres s'ouvrent toutes seules..."
+          }
           rows={5}
           aria-invalid={!!errors.problemDesc}
           aria-describedby={errors.problemDesc ? "problemDesc-error" : undefined}

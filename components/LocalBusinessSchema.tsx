@@ -1,36 +1,38 @@
+"use client";
+
+import { useRegion } from "@/components/RegionProvider";
 import { business } from "@/config/content";
+import { getCitiesByRegion } from "@/config/cities";
 
 export function LocalBusinessSchema() {
+  const { config, region } = useRegion();
+  const servedCities = getCitiesByRegion(region);
+
   const schema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "@id": `${business.website}/#localbusiness`,
+    "@id": `${business.website}/#localbusiness-${region}`,
     name: business.name,
-    description:
-      "Dépannage informatique, formation et assistance numérique à domicile à Toulouse et agglomération. Spécialiste seniors.",
+    description: `Dépannage informatique, formation et assistance numérique à domicile à ${config.hubCity} et environs. Spécialiste seniors.`,
     url: business.website,
     telephone: `+33${business.phoneRaw.replace(/^0/, "")}`,
     email: business.email,
     image: `${business.website}/logo.png`,
     address: {
       "@type": "PostalAddress",
-      addressLocality: "Toulouse",
-      addressRegion: "Occitanie",
+      addressLocality: config.hubCity,
+      addressRegion: region === "lourdes" ? "Hautes-Pyrénées" : "Occitanie",
       addressCountry: "FR",
     },
     geo: {
       "@type": "GeoCoordinates",
-      latitude: 43.6047,
-      longitude: 1.4442,
+      latitude: config.geo.lat,
+      longitude: config.geo.lng,
     },
-    areaServed: [
-      { "@type": "City", name: "Toulouse" },
-      { "@type": "City", name: "Blagnac" },
-      { "@type": "City", name: "Colomiers" },
-      { "@type": "City", name: "Tournefeuille" },
-      { "@type": "City", name: "Balma" },
-      { "@type": "City", name: "L'Union" },
-    ],
+    areaServed: servedCities.map((city) => ({
+      "@type": "City",
+      name: city.name,
+    })),
     priceRange: "€€",
     openingHoursSpecification: [
       {

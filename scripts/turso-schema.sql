@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS "QuoteRequest" (
     "preferredDays" TEXT NOT NULL,
     "preferredTime" TEXT NOT NULL,
     "preferredDate" TEXT,
+    "scheduledAt" DATETIME,
+    "scheduledDurationMinutes" INTEGER,
     "status" TEXT NOT NULL DEFAULT 'new',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

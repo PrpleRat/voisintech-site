@@ -7,6 +7,8 @@ import { business } from "@/config/content";
 import { Button } from "@/components/ui/button";
 import { CallButton } from "@/components/CallButton";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { RegionSwitcher } from "@/components/RegionSwitcher";
+import { useRegion } from "@/components/RegionProvider";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +34,7 @@ const desktopNavLinks = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const { config } = useRegion();
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-primary/10 shadow-sm">
@@ -63,13 +66,16 @@ export function Header() {
           className="flex flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
         >
           <span className="text-2xl font-bold text-primary">{business.name}</span>
-          <span className="text-sm text-gray-600 hidden sm:block">{business.slogan}</span>
+          <span className="text-sm text-gray-600 hidden sm:block">
+            {business.slogan} — {config.hubCity}
+          </span>
         </Link>
 
         <nav
-          className="hidden xl:flex items-center gap-4 shrink-0"
+          className="hidden xl:flex items-center gap-3 shrink-0"
           aria-label="Navigation principale"
         >
+          <RegionSwitcher className="hidden lg:flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-primary transition-colors rounded-lg px-2 py-1 border border-primary/15 bg-primary/5 min-h-[36px]" />
           {desktopNavLinks.map((link) => (
             <Link
               key={link.href}
@@ -105,6 +111,7 @@ export function Header() {
         aria-label="Navigation mobile"
       >
         <div className="container-page py-4 flex flex-col gap-2">
+          <RegionSwitcher className="flex items-center gap-2 text-sm font-medium text-primary py-2 px-2" />
           {navLinks.map((link) => (
             <Link
               key={link.href}

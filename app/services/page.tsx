@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { services, pricing } from "@/config/content";
 import { Button } from "@/components/ui/button";
+import { RegionPricingNote } from "@/components/RegionPricingNote";
 
 export const metadata: Metadata = {
   title: "Services & Tarifs",
@@ -113,7 +114,7 @@ export default function ServicesPage() {
             </div>
           </div>
 
-          <p className="mt-6 text-success font-semibold text-lg">{pricing.note}</p>
+          <RegionPricingNote />
         </section>
 
         <div className="mt-16 text-center card bg-primary/5">

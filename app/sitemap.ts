@@ -14,6 +14,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/contact",
     "/blog",
     "/villes",
+    "/pro",
+    "/materiel",
     "/mentions-legales",
     "/politique-confidentialite",
   ];

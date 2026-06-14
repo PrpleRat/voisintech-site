@@ -8,9 +8,11 @@ import { getWhatsAppUrl } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/button";
 import { CallButton } from "@/components/CallButton";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { useRegion } from "@/components/RegionProvider";
 
 export function Hero() {
   const reduceMotion = useReducedMotion();
+  const { config } = useRegion();
 
   const content = (
     <section className="py-8 md:py-12 lg:py-14 bg-gradient-to-br from-background via-white to-accent/20">
@@ -18,7 +20,7 @@ export function Hero() {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-10 items-center">
           <div>
             <p className="text-success font-semibold text-lg mb-3">
-              Dépannage informatique à domicile — Toulouse
+              {config.heroBadge}
             </p>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-6">
               Votre voisin de confiance pour le numérique
@@ -71,7 +73,7 @@ export function Hero() {
                 Intervention à domicile
               </p>
               <p className="text-gray-600 mt-2">
-                Toulouse et {business.serviceRadius}
+                {config.hubCity} et {config.serviceRadius}
               </p>
             </div>
           </div>

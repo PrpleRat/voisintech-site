@@ -8,24 +8,50 @@ import { Step2, Step2Data } from "./Step2";
 import { Step3, Step3Data } from "./Step3";
 import { Button } from "@/components/ui/button";
 import { business, services } from "@/config/content";
+import { useRegion } from "@/components/RegionProvider";
 import { cn } from "@/lib/utils";
 import { FormGuardFields, getFormGuardPayload } from "@/components/FormGuard";
 
-const initialStep2: Step2Data = { name: "", phone: "", email: "", address: "", city: "" };
+const proServicePresets: Record<
+  string,
+  { label: string; deviceType: string; placeholder: string }
+> = {
+  "site-web": {
+    label: "Création site web sur mesure",
+    deviceType: "Autre",
+    placeholder:
+      "Décrivez votre activité, le type de site souhaité (vitrine, blog, e-commerce léger), vos délais et votre budget indicatif…",
+  },
+  urssaf: {
+    label: "Accompagnement URSSAF & admin",
+    deviceType: "Autre",
+    placeholder:
+      "Précisez votre statut (micro-entreprise, auto-entrepreneur…), vos besoins (déclarations, facturation, premiers pas)…",
+  },
+};
+
 const initialStep3: Step3Data = { preferredDate: "", preferredDays: [], preferredTime: "" };
 
 export function QuoteForm() {
   const searchParams = useSearchParams();
   const serviceId = searchParams.get("service");
+  const { config } = useRegion();
 
   const preselectedService = services.find((s) => s.id === serviceId);
+  const proPreset = serviceId ? proServicePresets[serviceId] : undefined;
 
   const [step, setStep] = useState(1);
   const [step1, setStep1] = useState<Step1Data>({
-    deviceType: preselectedService?.deviceType ?? "",
+    deviceType: proPreset?.deviceType ?? preselectedService?.deviceType ?? "",
     problemDesc: "",
   });
-  const [step2, setStep2] = useState<Step2Data>(initialStep2);
+  const [step2, setStep2] = useState<Step2Data>({
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
+    city: config.hubCity,
+  });
   const [step3, setStep3] = useState<Step3Data>(initialStep3);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -178,7 +204,8 @@ export function QuoteForm() {
           <Step1
             data={step1}
             onChange={setStep1}
-            selectedService={preselectedService?.title}
+            selectedService={proPreset?.label ?? preselectedService?.title}
+            problemPlaceholder={proPreset?.placeholder}
             errors={{
               deviceType: errors.deviceType,
               problemDesc: errors.problemDesc,
