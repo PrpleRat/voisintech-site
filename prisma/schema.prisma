@@ -20,6 +20,8 @@ model QuoteRequest {
   preferredDays String
   preferredTime String
   preferredDate String?
+  scheduledAt DateTime?
+  scheduledDurationMinutes Int?
   status        String   @default("new")
   createdAt     DateTime @default(now())
 }
@@ -41,4 +43,17 @@ model Review {
   comment   String
   status    String   @default("pending")
   createdAt DateTime @default(now())
+}
+
+model ProRequest {
+  id          String   @id @default(cuid())
+  serviceType String
+  name        String
+  phone       String
+  email       String
+  company     String?
+  city        String
+  details     String
+  status      String   @default("new")
+  createdAt   DateTime @default(now())
 }

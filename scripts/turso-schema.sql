@@ -34,3 +34,16 @@ CREATE TABLE IF NOT EXISTS "Review" (
     "status" TEXT NOT NULL DEFAULT 'pending',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS "ProRequest" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "serviceType" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "company" TEXT,
+    "city" TEXT NOT NULL,
+    "details" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'new',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import nodemailer from "nodemailer";
 import { business } from "@/config/content";
+import { proFormConfigs, type ProServiceType } from "@/config/pro-forms";
 import { quoteTrainActions } from "@/lib/train-deeplinks";
 import { toGatewayUrl } from "@/lib/deeplink-gateway";
 import {
@@ -404,6 +405,123 @@ ${business.website}`;
   return sendEmail(
     data.email,
     "VoisinTech — Votre message est bien reçu",
+    html,
+    text,
+    { replyTo: replyToEmail }
+  );
+}
+
+export interface ProRequestEmailData {
+  serviceType: ProServiceType;
+  name: string;
+  phone: string;
+  email: string;
+  company?: string;
+  city: string;
+  details: Record<string, unknown>;
+}
+
+function formatProDetailsRows(data: ProRequestEmailData): Array<{ label: string; value: string }> {
+  const d = data.details;
+  if (data.serviceType === "site-web") {
+    const features = Array.isArray(d.features) ? (d.features as string[]).join(", ") : "—";
+    return [
+      { label: "Type de site", value: String(d.siteType || "—") },
+      { label: "Pages", value: String(d.pageCount || "—") },
+      { label: "Budget", value: String(d.budget || "—") },
+      { label: "Délai", value: String(d.deadline || "—") },
+      { label: "Site existant", value: String(d.hasExistingSite || "—") },
+      { label: "URL actuelle", value: String(d.existingUrl || "—") },
+      { label: "Fonctionnalités", value: features },
+      { label: "Description", value: String(d.projectDesc || "—") },
+    ];
+  }
+  const needs = Array.isArray(d.needs) ? (d.needs as string[]).join(", ") : "—";
+  return [
+    { label: "Statut", value: String(d.legalStatus || "—") },
+    { label: "Secteur", value: String(d.sector || "—") },
+    { label: "Besoins", value: needs },
+    { label: "Urgence", value: String(d.urgency || "—") },
+    { label: "Description", value: String(d.projectDesc || "—") },
+  ];
+}
+
+export async function sendProRequestNotificationToOwner(data: ProRequestEmailData) {
+  const serviceLabel = proFormConfigs[data.serviceType].title;
+  const bodyHtml = `
+    <h1 style="margin:0 0 8px;font-size:20px;color:#1E6FA5;">Nouvelle demande Espace Pro</h1>
+    <p style="margin:0 0 16px;font-size:15px;color:#1a1a1a;line-height:1.6;">
+      <strong>${escapeHtml(serviceLabel)}</strong> — répondez sous 2 h en journée.
+    </p>
+    ${emailInfoTable([
+      { label: "Client", value: escapeHtml(data.name) },
+      { label: "Entreprise", value: escapeHtml(data.company || "—") },
+      { label: "Téléphone", value: `<a href="tel:${escapeHtml(data.phone)}" style="color:#1E6FA5;font-weight:600;text-decoration:none;">${escapeHtml(data.phone)}</a>` },
+      { label: "Email", value: `<a href="mailto:${escapeHtml(data.email)}" style="color:#1E6FA5;text-decoration:none;">${escapeHtml(data.email)}</a>` },
+      { label: "Ville", value: escapeHtml(data.city) },
+      ...formatProDetailsRows(data).map((r) => ({
+        label: r.label,
+        value: escapeHtml(r.value),
+      })),
+    ])}
+  `;
+
+  const html = renderEmailLayout({
+    preheader: `Demande Pro — ${data.name}`,
+    title: `Espace Pro — ${serviceLabel}`,
+    bodyHtml,
+  });
+
+  const detailLines = formatProDetailsRows(data)
+    .map((r) => `${r.label}: ${r.value}`)
+    .join("\n");
+
+  const text = `Nouvelle demande Espace Pro — ${serviceLabel}
+
+Client: ${data.name}
+Entreprise: ${data.company || "—"}
+Tél: ${data.phone}
+Email: ${data.email}
+Ville: ${data.city}
+
+${detailLines}`;
+
+  return sendToAllNotifications(`[Pro] ${serviceLabel} — ${data.name}`, html, text);
+}
+
+export async function sendProRequestConfirmationToClient(data: ProRequestEmailData) {
+  const serviceLabel = proFormConfigs[data.serviceType].title;
+  const bodyHtml = `
+    <h1 style="margin:0 0 12px;font-size:20px;color:#1E6FA5;">Demande bien reçue</h1>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Bonjour <strong>${escapeHtml(data.name)}</strong>,</p>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
+      Merci pour votre demande concernant <strong>${escapeHtml(serviceLabel)}</strong>.
+      J'étudie votre projet et je vous recontacte <strong>dans les 2 heures</strong> en journée.
+    </p>
+    ${clientContactBlock()}
+    <p style="margin:16px 0 0;font-size:15px;line-height:1.6;">
+      À très bientôt,<br />
+      <strong>L'équipe VoisinTech</strong>
+    </p>
+  `;
+
+  const html = renderEmailLayout({
+    preheader: "Votre demande Espace Pro a bien été reçue.",
+    title: `Demande reçue — ${serviceLabel}`,
+    bodyHtml,
+  });
+
+  const text = `Bonjour ${data.name},
+
+Votre demande VoisinTech (${serviceLabel}) a bien été reçue.
+Réponse sous 2 h en journée.
+Téléphone: ${business.phone}
+
+VoisinTech — ${business.website}`;
+
+  return sendEmail(
+    data.email,
+    `VoisinTech — Votre demande ${serviceLabel} est bien reçue`,
     html,
     text,
     { replyTo: replyToEmail }

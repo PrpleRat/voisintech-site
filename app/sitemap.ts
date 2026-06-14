@@ -15,6 +15,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/blog",
     "/villes",
     "/pro",
+    "/pro/site-web",
+    "/pro/urssaf",
     "/materiel",
     "/mentions-legales",
     "/politique-confidentialite",

@@ -4,119 +4,167 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-
-const deviceTypes = [
-  { value: "laptop", label: "Ordinateur portable", base: 120 },
-  { value: "desktop", label: "PC fixe", base: 80 },
-  { value: "smartphone", label: "Smartphone", base: 60 },
-  { value: "tablet", label: "Tablette", base: 50 },
-];
-
-const conditions = [
-  { value: "excellent", label: "Excellent état", factor: 1 },
-  { value: "good", label: "Bon état (usure légère)", factor: 0.75 },
-  { value: "fair", label: "État moyen (rayures, batterie faible)", factor: 0.5 },
-  { value: "poor", label: "État dégradé / ne démarre plus", factor: 0.25 },
-];
-
-const ages = [
-  { value: "0-2", label: "Moins de 2 ans", factor: 1 },
-  { value: "2-4", label: "2 à 4 ans", factor: 0.8 },
-  { value: "4-6", label: "4 à 6 ans", factor: 0.55 },
-  { value: "6+", label: "Plus de 6 ans", factor: 0.35 },
-];
+import {
+  tradeInCatalog,
+  tradeInConditions,
+  tradeInDefects,
+  type TradeInCategoryId,
+} from "@/config/trade-in";
+import { estimateTradeInValue } from "@/lib/trade-in-estimate";
 
 export function TradeInEstimator() {
-  const [device, setDevice] = useState("");
+  const [categoryId, setCategoryId] = useState<TradeInCategoryId | "">("");
+  const [modelId, setModelId] = useState("");
+  const [storage, setStorage] = useState("");
   const [condition, setCondition] = useState("");
-  const [age, setAge] = useState("");
+  const [defects, setDefects] = useState<string[]>([]);
+
+  const category = tradeInCatalog.find((c) => c.id === categoryId);
 
   const estimate = useMemo(() => {
-    const deviceData = deviceTypes.find((d) => d.value === device);
-    const conditionData = conditions.find((c) => c.value === condition);
-    const ageData = ages.find((a) => a.value === age);
-    if (!deviceData || !conditionData || !ageData) return null;
+    if (!categoryId || !modelId || !condition) return null;
+    return estimateTradeInValue({
+      categoryId,
+      modelId,
+      condition,
+      storage: storage || undefined,
+      defects,
+    });
+  }, [categoryId, modelId, condition, storage, defects]);
 
-    const mid = Math.round(
-      deviceData.base * conditionData.factor * ageData.factor
+  const toggleDefect = (value: string) => {
+    setDefects((prev) =>
+      prev.includes(value) ? prev.filter((d) => d !== value) : [...prev, value]
     );
-    const low = Math.max(15, Math.round(mid * 0.75));
-    const high = Math.round(mid * 1.25);
-    return { low, high };
-  }, [device, condition, age]);
+  };
+
+  const contactHref = estimate
+    ? `/contact?subject=rachat-materiel&appareil=${encodeURIComponent(estimate.modelLabel)}&estimation=${estimate.mid}`
+    : "/contact?subject=rachat-materiel";
 
   return (
     <div className="card space-y-5">
       <div>
         <h3 className="text-xl font-bold mb-1">Estimation de reprise</h3>
         <p className="text-sm text-gray-600">
-          Fourchette indicative — offre ferme après inspection sur place ou par photo.
+          Barèmes basés sur le marché occasion français. Choisissez votre modèle pour une
+          fourchette réaliste — offre ferme après inspection.
         </p>
       </div>
 
-      <div className="grid sm:grid-cols-3 gap-4">
+      <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="tradein-device">Appareil</Label>
+          <Label htmlFor="tradein-category">Catégorie</Label>
           <select
-            id="tradein-device"
-            value={device}
-            onChange={(e) => setDevice(e.target.value)}
+            id="tradein-category"
+            value={categoryId}
+            onChange={(e) => {
+              setCategoryId(e.target.value as TradeInCategoryId | "");
+              setModelId("");
+              setStorage("");
+            }}
             className="mt-1 w-full rounded-xl border border-primary/20 px-3 py-2.5 min-h-[44px]"
           >
             <option value="">Choisir…</option>
-            {deviceTypes.map((d) => (
-              <option key={d.value} value={d.value}>
-                {d.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <Label htmlFor="tradein-condition">État</Label>
-          <select
-            id="tradein-condition"
-            value={condition}
-            onChange={(e) => setCondition(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-primary/20 px-3 py-2.5 min-h-[44px]"
-          >
-            <option value="">Choisir…</option>
-            {conditions.map((c) => (
-              <option key={c.value} value={c.value}>
+            {tradeInCatalog.map((c) => (
+              <option key={c.id} value={c.id}>
                 {c.label}
               </option>
             ))}
           </select>
         </div>
+
         <div>
-          <Label htmlFor="tradein-age">Âge</Label>
+          <Label htmlFor="tradein-model">Modèle précis</Label>
           <select
-            id="tradein-age"
-            value={age}
-            onChange={(e) => setAge(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-primary/20 px-3 py-2.5 min-h-[44px]"
+            id="tradein-model"
+            value={modelId}
+            onChange={(e) => setModelId(e.target.value)}
+            disabled={!category}
+            className="mt-1 w-full rounded-xl border border-primary/20 px-3 py-2.5 min-h-[44px] disabled:opacity-50"
           >
             <option value="">Choisir…</option>
-            {ages.map((a) => (
-              <option key={a.value} value={a.value}>
-                {a.label}
+            {category?.models.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label}
               </option>
             ))}
           </select>
         </div>
       </div>
 
+      {category?.storageOptions && (
+        <div>
+          <Label htmlFor="tradein-storage">Stockage</Label>
+          <select
+            id="tradein-storage"
+            value={storage}
+            onChange={(e) => setStorage(e.target.value)}
+            className="mt-1 w-full rounded-xl border border-primary/20 px-3 py-2.5 min-h-[44px]"
+          >
+            <option value="">Choisir…</option>
+            {category.storageOptions.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <div>
+        <Label htmlFor="tradein-condition">État général</Label>
+        <select
+          id="tradein-condition"
+          value={condition}
+          onChange={(e) => setCondition(e.target.value)}
+          className="mt-1 w-full rounded-xl border border-primary/20 px-3 py-2.5 min-h-[44px]"
+        >
+          <option value="">Choisir…</option>
+          {tradeInConditions.map((c) => (
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <fieldset>
+        <legend className="font-semibold text-sm mb-2">Défauts éventuels (optionnel)</legend>
+        <div className="grid sm:grid-cols-2 gap-2">
+          {tradeInDefects.map((d) => (
+            <label key={d.value} className="flex items-start gap-2 cursor-pointer text-sm min-h-[44px]">
+              <input
+                type="checkbox"
+                checked={defects.includes(d.value)}
+                onChange={() => toggleDefect(d.value)}
+                className="mt-1"
+              />
+              {d.label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
       {estimate && (
-        <div className="rounded-xl bg-success/10 border border-success/25 p-5 text-center">
-          <p className="text-sm text-gray-600 mb-1">Fourchette estimée</p>
-          <p className="text-3xl font-bold text-success">
+        <div className="rounded-xl bg-success/10 border border-success/25 p-5">
+          <p className="text-sm text-gray-600 mb-1">
+            {estimate.categoryLabel} — {estimate.modelLabel}
+          </p>
+          <p className="text-3xl font-bold text-success text-center my-2">
             {estimate.low}€ – {estimate.high}€
           </p>
-          <p className="text-xs text-gray-500 mt-2">
-            Estimation non contractuelle. Prix final selon modèle exact et test fonctionnel.
+          <p className="text-center text-sm text-gray-600">
+            Estimation médiane : <strong>{estimate.mid}€</strong>
           </p>
-          <Button asChild className="mt-4">
-            <Link href="/contact?subject=rachat-materiel">Demander une offre ferme</Link>
-          </Button>
+          <p className="text-xs text-gray-500 mt-3 leading-relaxed text-center">
+            {estimate.disclaimer}
+          </p>
+          <div className="flex justify-center mt-4">
+            <Button asChild>
+              <Link href={contactHref}>Demander une offre ferme</Link>
+            </Button>
+          </div>
         </div>
       )}
     </div>

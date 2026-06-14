@@ -43,6 +43,10 @@ export async function POST(request: NextRequest) {
         await prisma.contactMessage.delete({ where: { id } });
         return NextResponse.json({ success: true });
       }
+      if (type === "pro" && id) {
+        await prisma.proRequest.delete({ where: { id } });
+        return NextResponse.json({ success: true });
+      }
       if (type === "review" && id) {
         await prisma.review.delete({ where: { id } });
         return NextResponse.json({ success: true });
@@ -65,6 +69,13 @@ export async function POST(request: NextRequest) {
         });
         return NextResponse.json({ success: true });
       }
+      if (type === "pro" && id && status) {
+        await prisma.proRequest.update({
+          where: { id },
+          data: { status },
+        });
+        return NextResponse.json({ success: true });
+      }
       if (type === "review" && id && status) {
         await prisma.review.update({
           where: { id },
@@ -82,12 +93,14 @@ export async function POST(request: NextRequest) {
 
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      const [quotesWeek, quotesMonth, contactsWeek, contactsMonth, pendingReviews] =
+      const [quotesWeek, quotesMonth, contactsWeek, contactsMonth, proWeek, proMonth, pendingReviews] =
         await Promise.all([
           prisma.quoteRequest.count({ where: { createdAt: { gte: startOfWeek } } }),
           prisma.quoteRequest.count({ where: { createdAt: { gte: startOfMonth } } }),
           prisma.contactMessage.count({ where: { createdAt: { gte: startOfWeek } } }),
           prisma.contactMessage.count({ where: { createdAt: { gte: startOfMonth } } }),
+          prisma.proRequest.count({ where: { createdAt: { gte: startOfWeek } } }),
+          prisma.proRequest.count({ where: { createdAt: { gte: startOfMonth } } }),
           prisma.review.count({ where: { status: "pending" } }),
         ]);
 
@@ -96,6 +109,8 @@ export async function POST(request: NextRequest) {
         quotesMonth,
         contactsWeek,
         contactsMonth,
+        proWeek,
+        proMonth,
         pendingReviews,
       });
     }
@@ -115,13 +130,14 @@ export async function GET() {
 
   try {
     const prisma = await getPrisma();
-    const [quotes, contacts, reviews] = await Promise.all([
+    const [quotes, contacts, proRequests, reviews] = await Promise.all([
       prisma.quoteRequest.findMany({ orderBy: { createdAt: "desc" } }),
       prisma.contactMessage.findMany({ orderBy: { createdAt: "desc" } }),
+      prisma.proRequest.findMany({ orderBy: { createdAt: "desc" } }),
       prisma.review.findMany({ orderBy: { createdAt: "desc" } }),
     ]);
 
-    return NextResponse.json({ quotes, contacts, reviews });
+    return NextResponse.json({ quotes, contacts, proRequests, reviews });
   } catch (error) {
     console.error("[API Admin GET]", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

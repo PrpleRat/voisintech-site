@@ -25,7 +25,7 @@ const services = [
     status: "available" as const,
     description:
       "Vitrine, landing page ou site complet — design pro, formulaire de contact, SEO local. Idéal artisans, indépendants et TPE.",
-    cta: { href: "/devis?service=site-web", label: "Demander un devis" },
+    cta: { href: "/pro/site-web", label: "Demander un devis" },
   },
   {
     id: "urssaf",
@@ -34,7 +34,7 @@ const services = [
     status: "available" as const,
     description:
       "Déclarations URSSAF, facturation, premiers pas en micro-entreprise. Je vous guide pas à pas — sans jargon administratif.",
-    cta: { href: "/devis?service=urssaf", label: "Demander un devis" },
+    cta: { href: "/pro/urssaf", label: "Demander un devis" },
   },
   {
     id: "train-suite",

@@ -49,7 +49,52 @@ interface Stats {
   quotesMonth: number;
   contactsWeek: number;
   contactsMonth: number;
+  proWeek: number;
+  proMonth: number;
   pendingReviews: number;
+}
+
+interface ProRequest {
+  id: string;
+  serviceType: string;
+  name: string;
+  phone: string;
+  email: string;
+  company: string | null;
+  city: string;
+  details: string;
+  status: string;
+  createdAt: string;
+}
+
+const proServiceLabels: Record<string, string> = {
+  "site-web": "Site web sur mesure",
+  urssaf: "Accompagnement URSSAF",
+};
+
+function formatProDetails(json: string) {
+  try {
+    const d = JSON.parse(json) as Record<string, unknown>;
+    if (d.siteType) {
+      return [
+        ["Type", d.siteType],
+        ["Pages", d.pageCount],
+        ["Budget", d.budget],
+        ["Délai", d.deadline],
+        ["Fonctionnalités", Array.isArray(d.features) ? (d.features as string[]).join(", ") : ""],
+        ["Description", d.projectDesc],
+      ] as [string, unknown][];
+    }
+    return [
+      ["Statut", d.legalStatus],
+      ["Secteur", d.sector],
+      ["Besoins", Array.isArray(d.needs) ? (d.needs as string[]).join(", ") : ""],
+      ["Urgence", d.urgency],
+      ["Description", d.projectDesc],
+    ] as [string, unknown][];
+  } catch {
+    return [["Détails", json]] as [string, unknown][];
+  }
 }
 
 const timeLabels: Record<string, string> = {
@@ -247,9 +292,10 @@ export default function AdminDashboardPage() {
   const router = useRouter();
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [proRequests, setProRequests] = useState<ProRequest[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"quotes" | "contacts">("quotes");
+  const [tab, setTab] = useState<"quotes" | "pro" | "contacts">("quotes");
   const [quoteFilter, setQuoteFilter] = useState<"all" | "new" | "contacted" | "done">("all");
   const [contactFilter, setContactFilter] = useState<"all" | "new" | "done">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -280,6 +326,7 @@ export default function AdminDashboardPage() {
       const statsData = await statsRes.json();
       setQuotes(data.quotes || []);
       setContacts(data.contacts || []);
+      setProRequests(data.proRequests || []);
       setStats(statsData);
 
       const newest = data.quotes?.[0];
@@ -302,7 +349,7 @@ export default function AdminDashboardPage() {
     loadData();
   };
 
-  const deleteItem = async (type: "quote" | "contact", id: string, label: string) => {
+  const deleteItem = async (type: "quote" | "contact" | "pro", id: string, label: string) => {
     if (!window.confirm(`Supprimer définitivement ${label} ? Cette action est irréversible.`)) {
       return;
     }
@@ -391,12 +438,18 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        <div className="flex gap-4 mb-6">
+        <div className="flex gap-4 mb-6 flex-wrap">
           <Button
             variant={tab === "quotes" ? "default" : "outline"}
             onClick={() => setTab("quotes")}
           >
-            Demandes de devis ({quotes.length})
+            Dépannage ({quotes.length})
+          </Button>
+          <Button
+            variant={tab === "pro" ? "default" : "outline"}
+            onClick={() => setTab("pro")}
+          >
+            Espace Pro ({proRequests.length})
           </Button>
           <Button
             variant={tab === "contacts" ? "default" : "outline"}
@@ -440,6 +493,75 @@ export default function AdminDashboardPage() {
             ))}
             {filteredQuotes.length === 0 && (
               <p className="text-center text-gray-500 py-12">Aucune demande de devis</p>
+            )}
+          </div>
+        )}
+
+        {tab === "pro" && (
+          <div className="space-y-4">
+            {proRequests.map((p) => {
+              const details = formatProDetails(p.details);
+              return (
+                <article key={p.id} className="card">
+                  <div className="flex flex-wrap items-center gap-3 mb-3">
+                    <h3 className="text-lg font-bold">{p.name}</h3>
+                    <StatusBadge status={p.status} />
+                    <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-1 rounded-full">
+                      {proServiceLabels[p.serviceType] || p.serviceType}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 text-sm mb-4">
+                    {new Date(p.createdAt).toLocaleString("fr-FR")}
+                    {p.company ? ` — ${p.company}` : ""} — {p.city}
+                  </p>
+                  <div className="grid sm:grid-cols-2 gap-3 text-sm mb-4">
+                    <p>
+                      <span className="text-gray-500">Tél :</span>{" "}
+                      <a href={`tel:${p.phone}`} className="text-primary font-semibold">{p.phone}</a>
+                    </p>
+                    <p>
+                      <span className="text-gray-500">Email :</span>{" "}
+                      <a href={`mailto:${p.email}`} className="text-primary break-all">{p.email}</a>
+                    </p>
+                  </div>
+                  <div className="bg-background rounded-xl p-4 space-y-2 text-sm">
+                    {details.map(([label, value]) => (
+                      <p key={label}>
+                        <span className="font-semibold text-primary">{label} :</span>{" "}
+                        <span className="text-gray-700">{String(value || "—")}</span>
+                      </p>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-3 mt-4">
+                    {p.status === "new" && (
+                      <Button size="sm" onClick={() => updateStatus("pro", p.id, "contacted")}>
+                        Marquer contacté
+                      </Button>
+                    )}
+                    {p.status !== "done" && (
+                      <Button size="sm" variant="outline" onClick={() => updateStatus("pro", p.id, "done")}>
+                        Marquer terminé
+                      </Button>
+                    )}
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={`mailto:${p.email}`}>Répondre</a>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-red-600 border-red-200 hover:bg-red-50"
+                      disabled={deletingId === p.id}
+                      onClick={() => deleteItem("pro", p.id, `la demande pro de ${p.name}`)}
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
+                      Supprimer
+                    </Button>
+                  </div>
+                </article>
+              );
+            })}
+            {proRequests.length === 0 && (
+              <p className="text-center text-gray-500 py-12">Aucune demande Espace Pro</p>
             )}
           </div>
         )}
