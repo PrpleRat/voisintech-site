@@ -11,7 +11,8 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "sync:trade-in": "node scripts/sync-trade-in-prices.mjs",
-    "sync:trade-in:playwright": "npx tsx scripts/scrape-trade-in-playwright.ts"
+    "sync:trade-in:market": "npx tsx scripts/sync-trade-in-market.ts",
+    "export:vistaprint": "node scripts/export-vistaprint-jpg.mjs"
   },
   "dependencies": {
     "@libsql/client": "^0.8.1",

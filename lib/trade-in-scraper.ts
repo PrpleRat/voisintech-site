@@ -1,9 +1,4 @@
-const BROWSER_HEADERS = {
-  "User-Agent":
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-  Accept: "text/html,application/xhtml+xml,application/json",
-  "Accept-Language": "fr-FR,fr;q=0.9",
-};
+import { fetchPageHtml, postJsonViaScraperApi } from "@/lib/fetch-page-html";
 
 export interface ScrapeResult {
   source: "leboncoin" | "backmarket";
@@ -100,14 +95,49 @@ export async function scrapeLeboncoin(
 ): Promise<ScrapeResult> {
   const url = buildLeboncoinUrl(query, categoryId);
 
-  try {
-    const res = await fetch(url, {
-      headers: BROWSER_HEADERS,
-      signal: AbortSignal.timeout(12_000),
-      cache: "no-store",
-    });
+  if (process.env.SCRAPER_API_KEY) {
+    const api = await postJsonViaScraperApi<{
+      ads?: { price?: number[] }[];
+    }>(
+      "https://api.leboncoin.fr/finder/search",
+      {
+        filters: {
+          category: { id: String(categoryId ?? "") },
+          enums: { ad_type: ["offer"] },
+          keywords: { text: query },
+        },
+        limit: 30,
+        offset: 0,
+        sort_by: "time",
+        sort_order: "asc",
+      },
+      { api_key: "ba0c2dad52b3ec" }
+    );
 
-    if (!res.ok) {
+    if (api.ok && api.data?.ads?.length) {
+      const prices = filterOutliers(
+        api.data.ads
+          .flatMap((a) => a.price ?? [])
+          .filter((p) => p >= 15 && p <= 8000)
+      );
+      const med = median(prices);
+      return {
+        source: "leboncoin",
+        prices,
+        median: med,
+        buybackEstimate: med ? Math.round(med * 0.52) : null,
+        url,
+        ok: prices.length > 0,
+        error: prices.length === 0 ? "Aucun prix API" : undefined,
+      };
+    }
+  }
+
+  try {
+    const page = await fetchPageHtml(url, {
+      render: !!process.env.SCRAPER_API_KEY,
+    });
+    if (!page.ok) {
       return {
         source: "leboncoin",
         prices: [],
@@ -115,12 +145,10 @@ export async function scrapeLeboncoin(
         buybackEstimate: null,
         url,
         ok: false,
-        error: `HTTP ${res.status}`,
+        error: page.error ?? "Échec chargement page",
       };
     }
-
-    const html = await res.text();
-    return scrapeResultFromHtml("leboncoin", html, url);
+    return scrapeResultFromHtml("leboncoin", page.html, url);
   } catch (err) {
     return {
       source: "leboncoin",
@@ -138,13 +166,10 @@ export async function scrapeBackMarket(query: string): Promise<ScrapeResult> {
   const url = buildBackMarketUrl(query);
 
   try {
-    const res = await fetch(url, {
-      headers: BROWSER_HEADERS,
-      signal: AbortSignal.timeout(12_000),
-      cache: "no-store",
+    const page = await fetchPageHtml(url, {
+      render: !!process.env.SCRAPER_API_KEY,
     });
-
-    if (!res.ok) {
+    if (!page.ok) {
       return {
         source: "backmarket",
         prices: [],
@@ -152,12 +177,10 @@ export async function scrapeBackMarket(query: string): Promise<ScrapeResult> {
         buybackEstimate: null,
         url,
         ok: false,
-        error: `HTTP ${res.status}`,
+        error: page.error ?? "Échec chargement page",
       };
     }
-
-    const html = await res.text();
-    return scrapeResultFromHtml("backmarket", html, url);
+    return scrapeResultFromHtml("backmarket", page.html, url);
   } catch (err) {
     return {
       source: "backmarket",
