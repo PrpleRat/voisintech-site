@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import nodemailer from "nodemailer";
 import { business } from "@/config/content";
 import { quoteTrainActions } from "@/lib/train-deeplinks";
+import { toGatewayUrl } from "@/lib/deeplink-gateway";
 import {
   clientContactBlock,
   emailButton,
@@ -92,22 +93,22 @@ function trainLinksHtml(data: QuoteEmailData) {
   });
 
   const buttons = actions.workflow
-    .map(
-      (a) =>
-        `<div style="margin-bottom:10px;">
-          ${emailButton(a.emailHref ?? a.href, `${a.label} (${a.description})`)}
-          <p style="margin:4px 0 0;font-size:11px;color:#5c6570;word-break:break-all;">${escapeHtml(a.emailHref ?? a.href)}</p>
-        </div>`
-    )
+    .map((a) => {
+      const link = toGatewayUrl(a.href);
+      return `<div style="margin-bottom:10px;">
+          ${emailButton(link, `${a.label} (${a.description})`)}
+          <p style="margin:4px 0 0;font-size:11px;color:#5c6570;word-break:break-all;">${escapeHtml(link)}</p>
+        </div>`;
+    })
     .join("");
 
   const postButtons = actions.postIntervention
-    .map(
-      (a) =>
-        `<div style="margin-bottom:10px;">
-          ${emailButton(a.emailHref ?? a.href, `${a.label} (${a.description})`, "#155A87")}
-        </div>`
-    )
+    .map((a) => {
+      const link = toGatewayUrl(a.href);
+      return `<div style="margin-bottom:10px;">
+          ${emailButton(link, `${a.label} (${a.description})`, "#155A87")}
+        </div>`;
+    })
     .join("");
 
   return `
@@ -131,12 +132,12 @@ function trainLinksText(data: QuoteEmailData) {
     "",
     "— Apps Train (ouvrir sur iPhone) —",
     ...actions.workflow.map(
-      (a) => `${a.label} (${a.description}): ${a.emailHref ?? a.href}`
+      (a) => `${a.label} (${a.description}): ${toGatewayUrl(a.href)}`
     ),
     "",
     "Après intervention:",
     ...actions.postIntervention.map(
-      (a) => `${a.label}: ${a.emailHref ?? a.href}`
+      (a) => `${a.label}: ${toGatewayUrl(a.href)}`
     ),
   ];
 

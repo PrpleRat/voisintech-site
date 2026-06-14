@@ -1,5 +1,3 @@
-import { toGatewayUrl } from "@/lib/deeplink-gateway";
-
 export interface QuoteLinkData {
   name: string;
   phone: string;
@@ -142,14 +140,8 @@ export interface TrainAppAction {
   id: string;
   label: string;
   href: string;
-  /** Lien HTTPS pour emails (redirige vers href) */
-  emailHref?: string;
   description?: string;
   variant?: "default" | "outline" | "secondary";
-}
-
-function withEmailHref(action: TrainAppAction): TrainAppAction {
-  return { ...action, emailHref: toGatewayUrl(action.href) };
 }
 
 export function quoteTrainActions(data: QuoteLinkData): {
@@ -211,10 +203,7 @@ export function quoteTrainActions(data: QuoteLinkData): {
     },
   ];
 
-  return {
-    workflow: workflow.map(withEmailHref),
-    postIntervention: postIntervention.map(withEmailHref),
-  };
+  return { workflow, postIntervention };
 }
 
 export function contactTrainActions(data: ContactLinkData): TrainAppAction[] {
@@ -248,5 +237,5 @@ export function contactTrainActions(data: ContactLinkData): TrainAppAction[] {
     },
   ];
 
-  return actions.map(withEmailHref);
+  return actions;
 }
