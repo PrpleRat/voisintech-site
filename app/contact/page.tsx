@@ -19,7 +19,7 @@ export default function ContactPage() {
 
   return (
     <div className="section-padding">
-      <JsonLd data={faqJsonLd(faq, pageUrl)} />
+      <JsonLd data={faqJsonLd(faq, pageUrl, "FAQ contact VoisinTech")} />
       <div className="container-page">
         <h1 className="text-4xl font-bold mb-4">
           Contact VoisinTech — dépannage informatique Toulouse

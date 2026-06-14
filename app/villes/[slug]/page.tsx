@@ -71,7 +71,13 @@ export default function CityPage({ params }: Props) {
   ];
 
   if (city.faq?.length) {
-    schemas.push(faqJsonLd(city.faq, pageUrl));
+    schemas.push(
+      faqJsonLd(
+        city.faq,
+        pageUrl,
+        `FAQ dépannage informatique ${city.name}`
+      )
+    );
   }
 
   return (

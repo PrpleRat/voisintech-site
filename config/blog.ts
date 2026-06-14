@@ -92,6 +92,55 @@ export const blogArticles: BlogArticle[] = [
       "VoisinTech propose l'aide aux démarches en ligne à Toulouse et agglomération, à 50€/h. Réservez via le formulaire de devis.",
     ],
   },
+  {
+    slug: "depannage-informatique-toulouse-tarifs",
+    title: "Dépannage informatique à Toulouse : tarifs, délais et zone d'intervention",
+    excerpt:
+      "Combien coûte un dépannage PC à domicile à Toulouse ? Délais, tarif senior, déplacement gratuit — tout est transparent.",
+    date: "2026-06-12",
+    readTime: "5 min",
+    content: [
+      "Vous cherchez un **dépannage informatique à Toulouse** avec des tarifs clairs ? Voici ce que propose VoisinTech (voisintech.fr), technicien à domicile sur la métropole toulousaine.",
+      "**Tarif horaire** — 50€/h à domicile pour le dépannage PC, Mac, smartphone ou Wi-Fi. **40€/h tarif senior** pour les personnes de 65 ans et plus.",
+      "**Forfaits courants** — Diagnostic 30€, remise en état 80€, configuration smartphone 50€, pack sécurité 60€. Le **devis est toujours gratuit** avant réparation.",
+      "**Déplacement** — Gratuit jusqu'à 15 km autour de Toulouse (Blagnac, Colomiers, Tournefeuille, Balma, L'Union…). Au-delà, petit supplément annoncé à l'avance.",
+      "**Délais** — Réponse sous 2 heures en journée (lundi-samedi). Intervention souvent le jour même ou le lendemain. Urgence : appelez le **05 82 95 06 42**.",
+      "**Garantie** — Toutes les réparations sont garanties 30 jours. Si le même problème revient, je reviens gratuitement.",
+      "Besoin d'une estimation ? Demandez un devis gratuit sur voisintech.fr/devis ou consultez la page dépannage informatique Toulouse sur voisintech.fr/villes/toulouse.",
+    ],
+  },
+  {
+    slug: "reparation-pc-domicile-toulouse",
+    title: "Réparation PC à domicile à Toulouse : quand faire appeler un technicien ?",
+    excerpt:
+      "PC lent, écran noir, virus, Wi-Fi : les signes qu'il faut un pro — et pourquoi le domicile est plus pratique qu'un magasin.",
+    date: "2026-06-13",
+    readTime: "4 min",
+    content: [
+      "Votre ordinateur ne démarre plus, rame ou affiche des messages incompréhensibles ? Voici quand appeler un **technicien informatique à domicile à Toulouse** plutôt que d'essayer seul.",
+      "**Appelez si…** — Le PC met plus de 5 minutes à démarrer, l'écran reste noir, des pop-ups reviennent sans cesse, ou vous suspectez un virus. Un diagnostic sur place prend souvent 30 à 45 minutes.",
+      "**Pourquoi à domicile ?** — Pas de transport, pas de file d'attente. Le technicien voit votre box, votre imprimante, votre environnement réel. Idéal pour les seniors ou si vous n'êtes pas mobile.",
+      "**Ce qu'on répare** — Lenteur Windows/Mac, virus et malwares, Wi-Fi instable, écran noir, mises à jour bloquées, sauvegarde de données, configuration imprimante.",
+      "**Transparence** — VoisinTech explique chaque étape en français simple, sans jargon. Devis gratuit avant intervention, reçu remis sur place.",
+      "VoisinTech intervient à Toulouse et environs. Demandez un devis sur voisintech.fr/devis ou appelez le 05 82 95 06 42.",
+    ],
+  },
+  {
+    slug: "aide-informatique-seniors-toulouse",
+    title: "Aide informatique seniors à Toulouse : accompagnement patient à domicile",
+    excerpt:
+      "Smartphone, tablette, arnaques, démarches en ligne : un technicien patient qui vient chez vous à Toulouse.",
+    date: "2026-06-14",
+    readTime: "4 min",
+    content: [
+      "Le numérique peut intimider — surtout quand on n'a personne pour expliquer calmement. **VoisinTech** propose une **aide informatique pour seniors à Toulouse**, à domicile, avec patience et sans jargon.",
+      "**Smartphone et tablette** — Configuration, transfert de photos, applications utiles (météo, banque, Ameli), visio avec les petits-enfants. On répète autant que nécessaire.",
+      "**Ordinateur** — Mails, navigation internet, mises à jour, impression. Vous gardez le contrôle : le technicien montre, vous validez.",
+      "**Arnaques et sécurité** — Reconnaître un faux SMS, un email suspect, sécuriser ses mots de passe. Des réflexes simples pour naviguer sereinement.",
+      "**Tarif senior** — **40€/h** au lieu de 50€/h pour les 65 ans et plus. Formation et dépannage au même tarif préférentiel.",
+      "Zone : Toulouse, Blagnac, Colomiers, Tournefeuille, Balma, L'Union. Contactez VoisinTech sur voisintech.fr/contact ou demandez un devis gratuit sur voisintech.fr/devis.",
+    ],
+  },
 ];
 
 export function getArticleBySlug(slug: string) {

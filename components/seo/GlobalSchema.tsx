@@ -1,4 +1,4 @@
-import { business, services, faq } from "@/config/content";
+import { business, services } from "@/config/content";
 import { getCitiesByRegion } from "@/config/cities";
 
 /** Schémas JSON-LD rendus côté serveur (visibles par Google). */
@@ -56,6 +56,7 @@ export function GlobalSchema() {
       name: "Services dépannage informatique",
       itemListElement: services.slice(0, 6).map((s) => ({
         "@type": "Offer",
+        name: s.title,
         itemOffered: {
           "@type": "Service",
           name: s.title,
@@ -78,17 +79,7 @@ export function GlobalSchema() {
     inLanguage: "fr-FR",
   };
 
-  const homeFaq = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faq.slice(0, 4).map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: { "@type": "Answer", text: item.answer },
-    })),
-  };
-
-  const schemas = [localBusiness, webSite, homeFaq];
+  const schemas = [localBusiness, webSite];
 
   return (
     <>

@@ -3,7 +3,8 @@ import Link from "next/link";
 import { blogArticles } from "@/config/blog";
 import { faq } from "@/config/content";
 import { FAQAccordion } from "@/components/FAQAccordion";
-import { pageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { pageMetadata, absoluteUrl, faqJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Blog & FAQ — Conseils dépannage informatique Toulouse",
@@ -13,8 +14,11 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function BlogPage() {
+  const pageUrl = absoluteUrl("/blog");
+
   return (
     <div className="section-padding">
+      <JsonLd data={faqJsonLd(faq, pageUrl, "FAQ blog VoisinTech")} />
       <div className="container-page max-w-4xl">
         <h1 className="text-4xl font-bold mb-4">Blog & conseils</h1>
         <p className="text-lg text-gray-600 mb-12">

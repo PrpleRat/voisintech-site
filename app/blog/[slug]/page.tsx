@@ -45,10 +45,14 @@ export default function BlogArticlePage({ params }: Props) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "Article",
+    "@id": `${business.website}/blog/${article.slug}#article`,
     headline: article.title,
+    name: article.title,
     description: article.excerpt,
     datePublished: article.date,
     author: { "@type": "Organization", name: business.name },
+    publisher: { "@type": "Organization", name: business.name },
+    mainEntityOfPage: `${business.website}/blog/${article.slug}`,
   };
 
   return (

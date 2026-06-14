@@ -63,11 +63,15 @@ export function pageMetadata(opts: {
 
 export function faqJsonLd(
   items: { question: string; answer: string }[],
-  pageUrl: string
+  pageUrl: string,
+  pageName = "Questions fréquentes VoisinTech"
 ) {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
+    "@id": `${pageUrl}#faq`,
+    name: pageName,
+    url: pageUrl,
     mainEntity: items.map((item) => ({
       "@type": "Question",
       name: item.question,
@@ -76,7 +80,6 @@ export function faqJsonLd(
         text: item.answer,
       },
     })),
-    url: pageUrl,
   };
 }
 

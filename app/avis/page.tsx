@@ -51,9 +51,8 @@ export default async function AvisPage() {
 
   const reviewSchema = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@id": `${business.website}/#localbusiness`,
     name: business.name,
-    url: business.website,
     aggregateRating: {
       "@type": "AggregateRating",
       ratingValue: avgNum.toFixed(1),
