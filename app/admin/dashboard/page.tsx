@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { TrainAppLinks } from "@/components/TrainAppLinks";
 import { contactTrainActions, quoteTrainActions } from "@/lib/train-deeplinks";
+import { InventoryPanel } from "./InventoryPanel";
 
 interface Quote {
   id: string;
@@ -295,7 +296,7 @@ export default function AdminDashboardPage() {
   const [proRequests, setProRequests] = useState<ProRequest[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"quotes" | "pro" | "contacts">("quotes");
+  const [tab, setTab] = useState<"quotes" | "pro" | "contacts" | "materiel">("quotes");
   const [quoteFilter, setQuoteFilter] = useState<"all" | "new" | "contacted" | "done">("all");
   const [contactFilter, setContactFilter] = useState<"all" | "new" | "done">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -457,6 +458,12 @@ export default function AdminDashboardPage() {
           >
             Messages ({contacts.length})
           </Button>
+          <Button
+            variant={tab === "materiel" ? "default" : "outline"}
+            onClick={() => setTab("materiel")}
+          >
+            Matériel
+          </Button>
         </div>
 
         {tab === "quotes" && (
@@ -565,6 +572,8 @@ export default function AdminDashboardPage() {
             )}
           </div>
         )}
+
+        {tab === "materiel" && <InventoryPanel />}
 
         {tab === "contacts" && (
           <div className="space-y-4">

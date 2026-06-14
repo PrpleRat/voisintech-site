@@ -81,3 +81,41 @@ model TradeInSyncRun {
   startedAt    DateTime @default(now())
   finishedAt   DateTime?
 }
+
+model StoreItem {
+  id             String   @id @default(cuid())
+  name           String
+  description    String   @default("")
+  category       String
+  buyPriceCents  Int      @default(0)
+  sellPriceCents Int
+  quantity       Int      @default(0)
+  visibleOnStore Boolean  @default(true)
+  specs          String?
+  imageUrl       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  packItems      StorePackItem[]
+}
+
+model StorePack {
+  id             String   @id @default(cuid())
+  name           String
+  description    String   @default("")
+  sellPriceCents Int
+  visibleOnStore Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  items          StorePackItem[]
+}
+
+model StorePackItem {
+  id       String    @id @default(cuid())
+  packId   String
+  itemId   String
+  quantity Int       @default(1)
+  pack     StorePack @relation(fields: [packId], references: [id], onDelete: Cascade)
+  item     StoreItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([packId, itemId])
+}
