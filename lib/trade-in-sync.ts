@@ -9,12 +9,114 @@ import {
   getSearchQuery,
   leboncoinCategoryIds,
 } from "@/config/trade-in-meta";
-import { scrapeBackMarket, scrapeLeboncoin } from "@/lib/trade-in-scraper";
+import { scrapeBackMarket, scrapeLeboncoin, type ScrapeResult } from "@/lib/trade-in-scraper";
 
 const SYNC_DELAY_MS = 650;
 
+export interface TradeInIngestEntry {
+  modelId: string;
+  searchQuery: string;
+  source: "leboncoin" | "backmarket";
+  medianResale: number | null;
+  buybackEstimate: number | null;
+  sampleCount: number;
+  rawPrices: number[];
+  scrapeError: string | null;
+  scrapedAt: string;
+}
+
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+async function upsertScrapeResult(
+  modelId: string,
+  searchQuery: string,
+  result: ScrapeResult
+) {
+  const prisma = await getPrisma();
+  const now = new Date();
+
+  await prisma.tradeInPriceCache.upsert({
+    where: { id: cacheKeyForModel(modelId, searchQuery, result.source) },
+    create: {
+      id: cacheKeyForModel(modelId, searchQuery, result.source),
+      modelId,
+      searchQuery,
+      source: result.source,
+      medianResale: result.median,
+      buybackEstimate: result.buybackEstimate,
+      sampleCount: result.prices.length,
+      rawPrices: result.prices.length ? JSON.stringify(result.prices.slice(0, 20)) : null,
+      scrapeError: result.ok ? null : result.error ?? "Échec scrape",
+      scrapedAt: now,
+    },
+    update: {
+      medianResale: result.median,
+      buybackEstimate: result.buybackEstimate,
+      sampleCount: result.prices.length,
+      rawPrices: result.prices.length ? JSON.stringify(result.prices.slice(0, 20)) : null,
+      scrapeError: result.ok ? null : result.error ?? "Échec scrape",
+      scrapedAt: now,
+    },
+  });
+}
+
+export async function ingestTradeInEntries(
+  entries: TradeInIngestEntry[],
+  summary?: { modelsTotal: number; modelsOk: number; modelsFailed: number; details: string }
+) {
+  const prisma = await getPrisma();
+
+  for (const entry of entries) {
+    await prisma.tradeInPriceCache.upsert({
+      where: { id: cacheKeyForModel(entry.modelId, entry.searchQuery, entry.source) },
+      create: {
+        id: cacheKeyForModel(entry.modelId, entry.searchQuery, entry.source),
+        modelId: entry.modelId,
+        searchQuery: entry.searchQuery,
+        source: entry.source,
+        medianResale: entry.medianResale,
+        buybackEstimate: entry.buybackEstimate,
+        sampleCount: entry.sampleCount,
+        rawPrices: entry.rawPrices.length
+          ? JSON.stringify(entry.rawPrices.slice(0, 20))
+          : null,
+        scrapeError: entry.scrapeError,
+        scrapedAt: new Date(entry.scrapedAt),
+      },
+      update: {
+        medianResale: entry.medianResale,
+        buybackEstimate: entry.buybackEstimate,
+        sampleCount: entry.sampleCount,
+        rawPrices: entry.rawPrices.length
+          ? JSON.stringify(entry.rawPrices.slice(0, 20))
+          : null,
+        scrapeError: entry.scrapeError,
+        scrapedAt: new Date(entry.scrapedAt),
+      },
+    });
+  }
+
+  if (!summary) {
+    return { ingested: entries.length };
+  }
+
+  const run = await prisma.tradeInSyncRun.create({
+    data: {
+      status:
+        summary.modelsFailed === summary.modelsTotal
+          ? "failed"
+          : "completed",
+      modelsTotal: summary.modelsTotal,
+      modelsOk: summary.modelsOk,
+      modelsFailed: summary.modelsFailed,
+      details: summary.details.slice(0, 8000),
+      finishedAt: new Date(),
+    },
+  });
+
+  return { runId: run.id, ingested: entries.length, ...summary };
 }
 
 export async function syncOneModelPrice(
@@ -30,45 +132,8 @@ export async function syncOneModelPrice(
     scrapeBackMarket(searchQuery),
   ]);
 
-  const prisma = await getPrisma();
-  const now = new Date();
-
-  const upserts = [
-    {
-      source: "leboncoin" as const,
-      result: leboncoin,
-    },
-    {
-      source: "backmarket" as const,
-      result: backmarket,
-    },
-  ];
-
-  for (const { source, result } of upserts) {
-    await prisma.tradeInPriceCache.upsert({
-      where: { id: cacheKeyForModel(modelId, searchQuery, source) },
-      create: {
-        id: cacheKeyForModel(modelId, searchQuery, source),
-        modelId,
-        searchQuery,
-        source,
-        medianResale: result.median,
-        buybackEstimate: result.buybackEstimate,
-        sampleCount: result.prices.length,
-        rawPrices: result.prices.length ? JSON.stringify(result.prices.slice(0, 20)) : null,
-        scrapeError: result.ok ? null : result.error ?? "Échec scrape",
-        scrapedAt: now,
-      },
-      update: {
-        medianResale: result.median,
-        buybackEstimate: result.buybackEstimate,
-        sampleCount: result.prices.length,
-        rawPrices: result.prices.length ? JSON.stringify(result.prices.slice(0, 20)) : null,
-        scrapeError: result.ok ? null : result.error ?? "Échec scrape",
-        scrapedAt: now,
-      },
-    });
-  }
+  await upsertScrapeResult(modelId, searchQuery, leboncoin);
+  await upsertScrapeResult(modelId, searchQuery, backmarket);
 
   return {
     modelId,

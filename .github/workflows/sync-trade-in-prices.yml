@@ -8,12 +8,26 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
+
     steps:
-      - name: Trigger Vercel cron sync
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Scrape prices with Playwright and ingest
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           SITE_URL: https://www.voisintech.fr
-        run: |
-          curl -fsS -H "Authorization: Bearer $CRON_SECRET" \
-            -H "x-cron-secret: $CRON_SECRET" \
-            "$SITE_URL/api/cron/sync-trade-in-prices"
+        run: npx tsx scripts/scrape-trade-in-playwright.ts

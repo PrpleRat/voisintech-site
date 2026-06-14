@@ -60,18 +60,45 @@ export function extractEuroPricesFromText(text: string): number[] {
   return filterOutliers(Array.from(found)).slice(0, 40);
 }
 
-export async function scrapeLeboncoin(
-  query: string,
-  categoryId?: number
-): Promise<ScrapeResult> {
+export function buildLeboncoinUrl(query: string, categoryId?: number): string {
   const params = new URLSearchParams({
     text: query,
     sort: "time",
     order: "asc",
   });
   if (categoryId) params.set("category", String(categoryId));
+  return `https://www.leboncoin.fr/recherche?${params.toString()}`;
+}
 
-  const url = `https://www.leboncoin.fr/recherche?${params.toString()}`;
+export function buildBackMarketUrl(query: string): string {
+  return `https://www.backmarket.fr/fr-fr/search?q=${encodeURIComponent(query)}`;
+}
+
+export function scrapeResultFromHtml(
+  source: "leboncoin" | "backmarket",
+  html: string,
+  url: string
+): ScrapeResult {
+  const prices = extractEuroPricesFromText(html);
+  const med = median(prices);
+  const buybackMultiplier = source === "leboncoin" ? 0.52 : 0.48;
+
+  return {
+    source,
+    prices,
+    median: med,
+    buybackEstimate: med ? Math.round(med * buybackMultiplier) : null,
+    url,
+    ok: prices.length > 0,
+    error: prices.length === 0 ? "Aucun prix extrait" : undefined,
+  };
+}
+
+export async function scrapeLeboncoin(
+  query: string,
+  categoryId?: number
+): Promise<ScrapeResult> {
+  const url = buildLeboncoinUrl(query, categoryId);
 
   try {
     const res = await fetch(url, {
@@ -81,22 +108,19 @@ export async function scrapeLeboncoin(
     });
 
     if (!res.ok) {
-      return { source: "leboncoin", prices: [], median: null, buybackEstimate: null, url, ok: false, error: `HTTP ${res.status}` };
+      return {
+        source: "leboncoin",
+        prices: [],
+        median: null,
+        buybackEstimate: null,
+        url,
+        ok: false,
+        error: `HTTP ${res.status}`,
+      };
     }
 
     const html = await res.text();
-    const prices = extractEuroPricesFromText(html);
-    const med = median(prices);
-
-    return {
-      source: "leboncoin",
-      prices,
-      median: med,
-      buybackEstimate: med ? Math.round(med * 0.52) : null,
-      url,
-      ok: prices.length > 0,
-      error: prices.length === 0 ? "Aucun prix extrait" : undefined,
-    };
+    return scrapeResultFromHtml("leboncoin", html, url);
   } catch (err) {
     return {
       source: "leboncoin",
@@ -111,7 +135,7 @@ export async function scrapeLeboncoin(
 }
 
 export async function scrapeBackMarket(query: string): Promise<ScrapeResult> {
-  const url = `https://www.backmarket.fr/fr-fr/search?q=${encodeURIComponent(query)}`;
+  const url = buildBackMarketUrl(query);
 
   try {
     const res = await fetch(url, {
@@ -121,23 +145,19 @@ export async function scrapeBackMarket(query: string): Promise<ScrapeResult> {
     });
 
     if (!res.ok) {
-      return { source: "backmarket", prices: [], median: null, buybackEstimate: null, url, ok: false, error: `HTTP ${res.status}` };
+      return {
+        source: "backmarket",
+        prices: [],
+        median: null,
+        buybackEstimate: null,
+        url,
+        ok: false,
+        error: `HTTP ${res.status}`,
+      };
     }
 
     const html = await res.text();
-    const prices = extractEuroPricesFromText(html);
-    const med = median(prices);
-
-    return {
-      source: "backmarket",
-      prices,
-      median: med,
-      /** Back Market revente → reprise ~48 % du prix affiché */
-      buybackEstimate: med ? Math.round(med * 0.48) : null,
-      url,
-      ok: prices.length > 0,
-      error: prices.length === 0 ? "Aucun prix extrait" : undefined,
-    };
+    return scrapeResultFromHtml("backmarket", html, url);
   } catch (err) {
     return {
       source: "backmarket",
