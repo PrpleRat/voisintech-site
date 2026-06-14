@@ -33,7 +33,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${base}/villes/${city.slug}`,
       lastModified: new Date(),
       changeFrequency: "monthly" as const,
-      priority: 0.7,
+      priority: city.slug === "toulouse" ? 0.95 : 0.7,
     })),
     ...blogArticles.map((article) => ({
       url: `${base}/blog/${article.slug}`,

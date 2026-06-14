@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { business } from "@/config/content";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Mentions légales",
-};
+  description: `Mentions légales du site ${business.name} (voisintech.fr) — dépannage informatique à Toulouse.`,
+  path: "/mentions-legales",
+});
 
 export default function MentionsLegalesPage() {
   return (

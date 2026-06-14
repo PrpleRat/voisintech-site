@@ -3,14 +3,17 @@ import { Star, ExternalLink } from "lucide-react";
 import { getPrisma } from "@/lib/prisma";
 import { ReviewCard } from "@/components/ReviewCard";
 import { ReviewForm } from "@/components/ReviewForm";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { testimonials, business } from "@/config/content";
 import { Button } from "@/components/ui/button";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Avis clients",
+export const metadata: Metadata = pageMetadata({
+  title: "Avis clients VoisinTech — Dépannage informatique Toulouse",
   description:
-    "Découvrez les avis clients de VoisinTech, dépannage informatique à domicile à Toulouse. Laissez votre témoignage.",
-};
+    "Avis clients VoisinTech : dépannage informatique à domicile à Toulouse. Témoignages seniors et familles. Laissez votre avis.",
+  path: "/avis",
+});
 
 export const dynamic = "force-dynamic";
 
@@ -41,15 +44,32 @@ export default async function AvisPage() {
     })),
   ];
 
-  const avgRating =
-    allReviews.length > 0
-      ? (allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length).toFixed(1)
-      : "5.0";
+  const avgNum = allReviews.length > 0
+    ? allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
+    : 5;
+  const avgRating = avgNum.toFixed(1);
+
+  const reviewSchema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: business.name,
+    url: business.website,
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: avgNum.toFixed(1),
+      reviewCount: allReviews.length,
+      bestRating: "5",
+      worstRating: "1",
+    },
+  };
 
   return (
     <div className="section-padding">
+      <JsonLd data={reviewSchema} />
       <div className="container-page">
-        <h1 className="text-4xl font-bold mb-4">Avis clients</h1>
+        <h1 className="text-4xl font-bold mb-4">
+          Avis clients VoisinTech — Toulouse
+        </h1>
 
         <div className="flex items-center gap-4 mb-12">
           <div className="flex items-center gap-2">

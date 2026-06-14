@@ -8,6 +8,10 @@ export interface CityPage {
   metaDescription: string;
   intro: string;
   highlights: string[];
+  body?: string[];
+  faq?: { question: string; answer: string }[];
+  neighborhoods?: string[];
+  nearbySlugs?: string[];
 }
 
 export const cities: CityPage[] = [
@@ -15,15 +19,56 @@ export const cities: CityPage[] = [
     slug: "toulouse",
     name: "Toulouse",
     region: "toulouse",
-    metaTitle: "Dépannage informatique à domicile Toulouse",
+    metaTitle: "Dépannage informatique Toulouse à domicile",
     metaDescription:
-      "VoisinTech intervient à Toulouse pour dépannage PC, Mac, smartphone et Wi-Fi à domicile. Devis gratuit, tarif senior 40€/h.",
+      "VoisinTech (voisintech.fr) : dépannage informatique à Toulouse. Réparation PC, Mac, smartphone et Wi-Fi à domicile. Devis gratuit, tarif senior 40€/h. 05 82 95 06 42.",
     intro:
-      "À Toulouse, je me déplace chez vous pour résoudre vos problèmes informatiques — lenteur, virus, Wi-Fi, démarches en ligne — avec patience et sans jargon.",
+      "À Toulouse, VoisinTech intervient chez vous pour tous vos problèmes informatiques — PC lent, virus, Wi-Fi instable, smartphone compliqué ou démarches en ligne — avec patience et sans jargon.",
     highlights: [
-      "Intervention rapide dans tous les quartiers",
+      "Intervention rapide dans tous les quartiers de Toulouse",
       "Déplacement gratuit jusqu'à 15 km",
-      "Spécialiste accompagnement seniors",
+      "Spécialiste accompagnement seniors — tarif 40€/h",
+      "Devis gratuit avant chaque réparation",
+    ],
+    body: [
+      "Que vous habitiez le centre-ville, les Minimes, Rangueil, Borderouge ou Saint-Cyprien, je me déplace à votre domicile pour diagnostiquer et réparer vos appareils sur place. Pas besoin d'emmener votre ordinateur en magasin : VoisinTech vient à vous, comme un voisin de confiance.",
+      "Le dépannage informatique à Toulouse couvre la réparation PC et Mac (lenteur, écran noir, virus), la configuration de smartphones et tablettes, l'optimisation du Wi-Fi et de la box internet, ainsi que l'aide aux démarches en ligne (CAF, impôts, Ameli, France Identité).",
+      "VoisinTech est le service de proximité pensé pour les seniors, les familles et les PME de la métropole toulousaine. Tarifs affichés à l'avance, explications en français simple, garantie 30 jours sur les réparations.",
+    ],
+    neighborhoods: [
+      "Capitole & centre-ville",
+      "Minimes",
+      "Rangueil",
+      "Borderouge",
+      "Saint-Cyprien",
+      "Carmes",
+      "Saint-Michel",
+      "Purpan",
+      "Jean-Jaurès",
+      "Compans-Caffarelli",
+    ],
+    nearbySlugs: ["blagnac", "colomiers", "tournefeuille", "balma", "l-union"],
+    faq: [
+      {
+        question: "Combien coûte un dépannage informatique à Toulouse ?",
+        answer:
+          "Le tarif standard est de 50€/h à domicile (40€/h pour les seniors de 65 ans et plus). Le diagnostic est à 30€ et le devis est toujours gratuit avant intervention. Déplacement gratuit jusqu'à 15 km autour de Toulouse.",
+      },
+      {
+        question: "Quel délai pour une intervention à Toulouse ?",
+        answer:
+          "VoisinTech répond sous 2 heures en journée (lundi-samedi). Pour les urgences, appelez le 05 82 95 06 42 — intervention souvent le jour même ou le lendemain selon disponibilité.",
+      },
+      {
+        question: "Intervenez-vous dans tous les quartiers de Toulouse ?",
+        answer:
+          "Oui, j'interviens dans tous les quartiers de Toulouse et en agglomération (Blagnac, Colomiers, Tournefeuille, Balma, L'Union…). Le déplacement est gratuit jusqu'à 15 km.",
+      },
+      {
+        question: "Pourquoi choisir VoisinTech plutôt qu'un magasin à Toulouse ?",
+        answer:
+          "Vous gagnez du temps : pas de transport, pas de file d'attente. J'explique chaque étape chez vous, en français simple. Idéal pour les seniors ou toute personne qui préfère un service humain et de proximité.",
+      },
     ],
   },
   {

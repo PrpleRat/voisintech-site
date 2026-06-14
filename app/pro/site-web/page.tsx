@@ -4,14 +4,16 @@ import Link from "next/link";
 import { ProRequestForm } from "@/components/ProForm/ProRequestForm";
 import { proFormConfigs } from "@/config/pro-forms";
 import { business } from "@/config/content";
+import { pageMetadata } from "@/lib/seo";
 
 const config = proFormConfigs["site-web"];
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: config.title,
   description:
     "Demandez un devis pour votre site web sur mesure : vitrine, landing page, SEO local. VoisinTech accompagne artisans et indépendants.",
-};
+  path: "/pro/site-web",
+});
 
 export default function SiteWebDevisPage() {
   return (

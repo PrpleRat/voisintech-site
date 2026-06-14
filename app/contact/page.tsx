@@ -2,20 +2,28 @@ import type { Metadata } from "next";
 import { Phone, Mail } from "lucide-react";
 import { ContactForm } from "@/components/ContactForm";
 import { FAQAccordion } from "@/components/FAQAccordion";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { business, faq } from "@/config/content";
 import { Button } from "@/components/ui/button";
+import { absoluteUrl, faqJsonLd, pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Contact",
+export const metadata: Metadata = pageMetadata({
+  title: "Contact — Dépannage informatique Toulouse",
   description:
-    "Contactez VoisinTech pour un dépannage informatique à domicile à Toulouse. Téléphone, email ou formulaire de contact.",
-};
+    "Contactez VoisinTech pour un dépannage informatique à domicile à Toulouse. Téléphone 05 82 95 06 42, email ou formulaire. Réponse sous 2 h.",
+  path: "/contact",
+});
 
 export default function ContactPage() {
+  const pageUrl = absoluteUrl("/contact");
+
   return (
     <div className="section-padding">
+      <JsonLd data={faqJsonLd(faq, pageUrl)} />
       <div className="container-page">
-        <h1 className="text-4xl font-bold mb-4">Contactez-moi</h1>
+        <h1 className="text-4xl font-bold mb-4">
+          Contact VoisinTech — dépannage informatique Toulouse
+        </h1>
         <p className="text-lg text-gray-600 mb-12 max-w-2xl">
           Une question, un problème urgent ? Je suis joignable par téléphone,
           email ou via le formulaire ci-dessous. Réponse sous 2 heures en journée.

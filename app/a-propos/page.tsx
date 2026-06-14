@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import { about, business } from "@/config/content";
+import { pageMetadata } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Heart, Eye, MapPin } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "À propos",
+export const metadata: Metadata = pageMetadata({
+  title: "À propos de VoisinTech — voisintech.fr",
   description:
-    "Découvrez VoisinTech : un service de dépannage informatique humain et de proximité à Toulouse. Patience, transparence, proximité.",
-};
+    "VoisinTech (voisintech.fr) : service de dépannage informatique humain et de proximité à Toulouse. Patience, transparence, intervention à domicile.",
+  path: "/a-propos",
+});
 
 const valueIcons = [Heart, Eye, MapPin];
 

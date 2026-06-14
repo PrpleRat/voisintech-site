@@ -10,12 +10,14 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { business } from "@/config/content";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Espace Pro — Sites web, URSSAF & outils métier",
   description:
     "Services professionnels VoisinTech : création de site web sur mesure, accompagnement URSSAF et solutions applicatives pour entrepreneurs.",
-};
+  path: "/pro",
+});
 
 const services = [
   {

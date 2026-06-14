@@ -3,12 +3,14 @@ import Link from "next/link";
 import { blogArticles } from "@/config/blog";
 import { faq } from "@/config/content";
 import { FAQAccordion } from "@/components/FAQAccordion";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Blog & FAQ — Conseils informatique à domicile",
+export const metadata: Metadata = pageMetadata({
+  title: "Blog & FAQ — Conseils dépannage informatique Toulouse",
   description:
-    "Guides pratiques et questions fréquentes : PC lent, arnaques, Wi-Fi, aide seniors, démarches en ligne.",
-};
+    "Guides VoisinTech : PC lent, arnaques, Wi-Fi, aide seniors, démarches en ligne. Conseils dépannage informatique à Toulouse.",
+  path: "/blog",
+});
 
 export default function BlogPage() {
   return (

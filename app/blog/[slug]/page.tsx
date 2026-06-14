@@ -5,6 +5,7 @@ import { blogArticles, getArticleBySlug } from "@/config/blog";
 import { business } from "@/config/content";
 import { CallButton } from "@/components/CallButton";
 import { Button } from "@/components/ui/button";
+import { pageMetadata } from "@/lib/seo";
 
 interface Props {
   params: { slug: string };
@@ -17,11 +18,11 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: Props): Metadata {
   const article = getArticleBySlug(params.slug);
   if (!article) return {};
-  return {
+  return pageMetadata({
     title: article.title,
     description: article.excerpt,
-    alternates: { canonical: `${business.website}/blog/${article.slug}` },
-  };
+    path: `/blog/${article.slug}`,
+  });
 }
 
 function renderParagraph(text: string) {

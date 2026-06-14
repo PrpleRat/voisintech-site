@@ -10,12 +10,14 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TradeInEstimator } from "@/components/TradeInEstimator";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Matériel informatique — Neuf, occasion & reprise",
   description:
     "Achat de matériel informatique neuf et d'occasion, reprise de votre ancien équipement. VoisinTech, Toulouse et Lourdes.",
-};
+  path: "/materiel",
+});
 
 const sections = [
   {

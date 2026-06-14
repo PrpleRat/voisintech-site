@@ -11,7 +11,7 @@ export function VillesList() {
   return (
     <div className="section-padding">
       <div className="container-page max-w-4xl">
-        <h1 className="text-4xl font-bold mb-4">Villes desservies</h1>
+        <h2 className="text-2xl font-bold mb-4">Choisissez votre ville</h2>
         <p className="text-lg text-gray-600 mb-10">
           Intervention à domicile dans un rayon de {config.serviceRadius} autour de{" "}
           {config.hubCity}.

@@ -12,12 +12,14 @@ import {
 import { services, pricing } from "@/config/content";
 import { Button } from "@/components/ui/button";
 import { RegionPricingNote } from "@/components/RegionPricingNote";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Services & Tarifs",
+export const metadata: Metadata = pageMetadata({
+  title: "Dépannage informatique Toulouse — Services & tarifs",
   description:
-    "Découvrez les services VoisinTech : dépannage PC, smartphones, Wi-Fi, sécurité, démarches en ligne et formation. Tarifs transparents à Toulouse.",
-};
+    "Services VoisinTech à Toulouse : dépannage PC/Mac, smartphones, Wi-Fi, sécurité, démarches en ligne. Tarifs transparents, devis gratuit à domicile.",
+  path: "/services",
+});
 
 const iconMap: Record<string, LucideIcon> = {
   Monitor,
@@ -32,10 +34,17 @@ export default function ServicesPage() {
   return (
     <div className="section-padding">
       <div className="container-page">
-        <h1 className="text-4xl font-bold mb-4">Services & Tarifs</h1>
-        <p className="text-lg text-gray-600 mb-12 max-w-3xl">
+        <h1 className="text-4xl font-bold mb-4">
+          Dépannage informatique à Toulouse — Services & tarifs
+        </h1>
+        <p className="text-lg text-gray-600 mb-4 max-w-3xl">
+          VoisinTech intervient à domicile à Toulouse et en agglomération.
           Des tarifs clairs, affichés à l&apos;avance. Devis gratuit avant chaque intervention.
-          Pas de surprise, pas de jargon.
+        </p>
+        <p className="mb-12">
+          <Link href="/villes/toulouse" className="text-primary font-semibold hover:underline">
+            Voir la page dépannage informatique Toulouse →
+          </Link>
         </p>
 
         <div className="space-y-16">

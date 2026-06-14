@@ -1,9 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Hero } from "@/components/Hero";
 import { ServiceCard } from "@/components/ServiceCard";
 import { TestimonialCarousel } from "@/components/TestimonialCard";
 import { ServiceAreaMap } from "@/components/ServiceAreaMap";
-import { services, howItWorks, trustBadges } from "@/config/content";
+import { services, howItWorks, trustBadges, business } from "@/config/content";
+import { pageMetadata } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import {
   BadgeCheck,
@@ -12,12 +14,38 @@ import {
   MessageCircle,
 } from "lucide-react";
 
+export const metadata: Metadata = pageMetadata({
+  title: "VoisinTech — Dépannage informatique à domicile Toulouse",
+  description:
+    "VoisinTech (voisintech.fr) : votre technicien de dépannage informatique à domicile à Toulouse. PC, Mac, smartphone, Wi-Fi. Devis gratuit — 05 82 95 06 42.",
+  path: "/",
+});
+
 const badgeIcons = [BadgeCheck, Shield, Heart, MessageCircle];
 
 export default function HomePage() {
   return (
     <>
       <Hero />
+
+      <section className="py-8 bg-white border-b border-gray-100">
+        <div className="container-page max-w-4xl">
+          <p className="text-lg text-gray-700 leading-relaxed">
+            <strong>VoisinTech</strong> (<a href="https://www.voisintech.fr" className="text-primary hover:underline">voisintech.fr</a>) est
+            votre spécialiste du{" "}
+            <Link href="/villes/toulouse" className="text-primary font-semibold hover:underline">
+              dépannage informatique à Toulouse
+            </Link>
+            {" "}et en agglomération. Réparation ordinateur, configuration smartphone,
+            dépannage Wi-Fi et aide aux démarches en ligne — à domicile, sans jargon.
+            Appelez le{" "}
+            <a href={`tel:${business.phoneRaw}`} className="phone-link">
+              {business.phone}
+            </a>
+            {" "}ou demandez un devis gratuit en ligne.
+          </p>
+        </div>
+      </section>
 
       <section className="section-padding bg-white">
         <div className="container-page">
@@ -81,10 +109,25 @@ export default function HomePage() {
 
       <section className="section-padding bg-primary text-white">
         <div className="container-page text-center">
-          <h2 className="text-3xl font-bold mb-4">Un problème informatique ?</h2>
-          <p className="text-lg text-white/90 mb-8 max-w-xl mx-auto">
-            Devis gratuit, intervention rapide, explications claires.
-            Je suis à deux pas.
+          <h2 className="text-3xl font-bold mb-4">
+            Dépannage informatique à Toulouse — devis gratuit
+          </h2>
+          <p className="text-lg text-white/90 mb-4 max-w-xl mx-auto">
+            PC lent, virus, Wi-Fi ou smartphone ? VoisinTech intervient chez vous
+            à Toulouse et environs. Intervention rapide, explications claires.
+          </p>
+          <p className="text-white/80 mb-8">
+            <Link href="/villes/toulouse" className="underline hover:text-white">
+              Dépannage informatique Toulouse
+            </Link>
+            {" · "}
+            <Link href="/services" className="underline hover:text-white">
+              Tarifs
+            </Link>
+            {" · "}
+            <Link href="/avis" className="underline hover:text-white">
+              Avis clients
+            </Link>
           </p>
           <Button asChild size="lg" variant="secondary">
             <Link href="/devis">Demander un devis gratuit</Link>

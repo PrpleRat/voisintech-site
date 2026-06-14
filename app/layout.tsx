@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { AppShell } from "@/components/AppShell";
+import { GlobalSchema } from "@/components/seo/GlobalSchema";
 import { business } from "@/config/content";
+import { defaultKeywords } from "@/lib/seo";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -10,15 +12,8 @@ export const metadata: Metadata = {
     template: `%s | ${business.name}`,
   },
   description:
-    "VoisinTech : dépannage informatique, formation et assistance numérique à domicile à Toulouse. Seniors, familles et PME. Devis gratuit, sans jargon.",
-  keywords: [
-    "dépannage informatique Toulouse",
-    "réparation ordinateur domicile",
-    "aide seniors numérique",
-    "technicien informatique Toulouse",
-    "dépannage PC Blagnac",
-    "aide informatique Colomiers",
-  ],
+    "VoisinTech (voisintech.fr) : dépannage informatique à domicile à Toulouse. Réparation PC, Mac, smartphone, Wi-Fi. Seniors, familles et PME. Devis gratuit — 05 82 95 06 42.",
+  keywords: defaultKeywords,
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",
@@ -26,21 +21,24 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    url: business.website,
     siteName: business.name,
     title: `${business.name} — Dépannage informatique à domicile Toulouse`,
     description:
       "Dépannage informatique à domicile à Toulouse et environs. Devis gratuit, tarif senior 40€/h.",
-    images: [{ url: "/logo.png", width: 1200, height: 630, alt: business.name }],
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: `${business.name} — dépannage informatique Toulouse`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: business.name,
     description: "Dépannage informatique à domicile — Toulouse",
-    images: ["/logo.png"],
-  },
-  alternates: {
-    canonical: business.website,
+    images: ["/opengraph-image.png"],
   },
 };
 
@@ -52,6 +50,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className="flex flex-col min-h-screen">
+        <GlobalSchema />
         <AppShell>{children}</AppShell>
       </body>
     </html>

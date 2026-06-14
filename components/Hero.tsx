@@ -22,9 +22,12 @@ export function Hero() {
             <p className="text-success font-semibold text-lg mb-3">
               {config.heroBadge}
             </p>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-6">
-              Votre voisin de confiance pour le numérique
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-4">
+              VoisinTech — dépannage informatique à domicile à {config.hubCity}
             </h1>
+            <p className="text-xl text-primary font-semibold mb-4">
+              Votre voisin de confiance pour le numérique
+            </p>
             <p className="text-lg text-gray-700 mb-8 leading-relaxed max-w-xl">
               PC lent, smartphone compliqué, Wi-Fi capricieux ou démarches en ligne ?
               Je viens chez vous, je répare, et j&apos;explique tout simplement —

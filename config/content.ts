@@ -195,7 +195,7 @@ export const faq = [
 ];
 
 export const about = {
-  story: `Bonjour, je suis votre technicien VoisinTech à Toulouse.
+  story: `Bonjour, je suis votre technicien VoisinTech à Toulouse — le service voisintech.fr de dépannage informatique à domicile.
 
 Après des années à aider famille, voisins et amis avec leurs problèmes d'informatique, j'ai créé VoisinTech pour offrir ce même service de proximité à tous ceux qui se sentent dépassés par le numérique.
 

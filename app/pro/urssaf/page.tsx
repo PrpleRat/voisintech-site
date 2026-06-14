@@ -4,14 +4,16 @@ import Link from "next/link";
 import { ProRequestForm } from "@/components/ProForm/ProRequestForm";
 import { proFormConfigs } from "@/config/pro-forms";
 import { business } from "@/config/content";
+import { pageMetadata } from "@/lib/seo";
 
 const config = proFormConfigs.urssaf;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: config.title,
   description:
     "Accompagnement URSSAF et démarches admin pour auto-entrepreneurs et micro-entreprises. VoisinTech vous guide pas à pas.",
-};
+  path: "/pro/urssaf",
+});
 
 export default function UrssafDevisPage() {
   return (
