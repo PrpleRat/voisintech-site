@@ -1,36 +1,80 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   tradeInCatalog,
   tradeInConditions,
   tradeInDefects,
+  CUSTOM_MODEL_ID,
   type TradeInCategoryId,
 } from "@/config/trade-in";
-import { estimateTradeInValue } from "@/lib/trade-in-estimate";
+import type { TradeInEstimateResult } from "@/lib/trade-in-estimate";
 
 export function TradeInEstimator() {
   const [categoryId, setCategoryId] = useState<TradeInCategoryId | "">("");
   const [modelId, setModelId] = useState("");
+  const [exactModel, setExactModel] = useState("");
   const [storage, setStorage] = useState("");
   const [condition, setCondition] = useState("");
   const [defects, setDefects] = useState<string[]>([]);
+  const [estimate, setEstimate] = useState<TradeInEstimateResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const category = tradeInCatalog.find((c) => c.id === categoryId);
+  const needsExactModel = modelId === CUSTOM_MODEL_ID || !!exactModel.trim();
 
-  const estimate = useMemo(() => {
-    if (!categoryId || !modelId || !condition) return null;
-    return estimateTradeInValue({
-      categoryId,
-      modelId,
-      condition,
-      storage: storage || undefined,
-      defects,
-    });
-  }, [categoryId, modelId, condition, storage, defects]);
+  useEffect(() => {
+    if (!categoryId || !modelId || !condition) {
+      setEstimate(null);
+      return;
+    }
+    if (modelId === CUSTOM_MODEL_ID && !exactModel.trim()) {
+      setEstimate(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/trade-in/estimate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            categoryId,
+            modelId,
+            condition,
+            storage: storage || undefined,
+            defects,
+            exactModel: exactModel.trim() || undefined,
+            liveScrape: !!exactModel.trim(),
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Erreur estimation");
+        setEstimate(data.estimate);
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+        setError(err instanceof Error ? err.message : "Erreur");
+        setEstimate(null);
+      } finally {
+        setLoading(false);
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [categoryId, modelId, exactModel, storage, condition, defects]);
 
   const toggleDefect = (value: string) => {
     setDefects((prev) =>
@@ -39,7 +83,9 @@ export function TradeInEstimator() {
   };
 
   const contactHref = estimate
-    ? `/contact?subject=rachat-materiel&appareil=${encodeURIComponent(estimate.modelLabel)}&estimation=${estimate.mid}`
+    ? `/contact?subject=rachat-materiel&appareil=${encodeURIComponent(
+        estimate.modelLabel
+      )}&estimation=${estimate.mid}${exactModel ? `&modele=${encodeURIComponent(exactModel)}` : ""}`
     : "/contact?subject=rachat-materiel";
 
   return (
@@ -47,8 +93,8 @@ export function TradeInEstimator() {
       <div>
         <h3 className="text-xl font-bold mb-1">Estimation de reprise</h3>
         <p className="text-sm text-gray-600">
-          Barèmes basés sur le marché occasion français. Choisissez votre modèle pour une
-          fourchette réaliste — offre ferme après inspection.
+          Prix recalibrés quotidiennement via Leboncoin et Back Market. Précisez votre
+          modèle exact pour une estimation plus fine.
         </p>
       </div>
 
@@ -62,6 +108,7 @@ export function TradeInEstimator() {
               setCategoryId(e.target.value as TradeInCategoryId | "");
               setModelId("");
               setStorage("");
+              setExactModel("");
             }}
             className="mt-1 w-full rounded-xl border border-primary/20 px-3 py-2.5 min-h-[44px]"
           >
@@ -75,7 +122,7 @@ export function TradeInEstimator() {
         </div>
 
         <div>
-          <Label htmlFor="tradein-model">Modèle précis</Label>
+          <Label htmlFor="tradein-model">Modèle (liste)</Label>
           <select
             id="tradein-model"
             value={modelId}
@@ -91,6 +138,22 @@ export function TradeInEstimator() {
             ))}
           </select>
         </div>
+      </div>
+
+      <div>
+        <Label htmlFor="tradein-exact">
+          Modèle exact {needsExactModel ? "*" : "(recommandé)"}
+        </Label>
+        <Input
+          id="tradein-exact"
+          value={exactModel}
+          onChange={(e) => setExactModel(e.target.value)}
+          placeholder="Ex : iPhone 14 Pro 256 Go Graphite, MacBook Air M2 2022…"
+          className="mt-1"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Déclenche une recherche live Leboncoin + Back Market pour affiner le prix.
+        </p>
       </div>
 
       {category?.storageOptions && (
@@ -133,7 +196,10 @@ export function TradeInEstimator() {
         <legend className="font-semibold text-sm mb-2">Défauts éventuels (optionnel)</legend>
         <div className="grid sm:grid-cols-2 gap-2">
           {tradeInDefects.map((d) => (
-            <label key={d.value} className="flex items-start gap-2 cursor-pointer text-sm min-h-[44px]">
+            <label
+              key={d.value}
+              className="flex items-start gap-2 cursor-pointer text-sm min-h-[44px]"
+            >
               <input
                 type="checkbox"
                 checked={defects.includes(d.value)}
@@ -146,7 +212,20 @@ export function TradeInEstimator() {
         </div>
       </fieldset>
 
-      {estimate && (
+      {loading && (
+        <p className="flex items-center gap-2 text-sm text-gray-600 justify-center py-4">
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          Calcul avec données marché…
+        </p>
+      )}
+
+      {error && (
+        <p className="text-red-600 text-sm p-3 bg-red-50 rounded-xl" role="alert">
+          {error}
+        </p>
+      )}
+
+      {estimate && !loading && (
         <div className="rounded-xl bg-success/10 border border-success/25 p-5">
           <p className="text-sm text-gray-600 mb-1">
             {estimate.categoryLabel} — {estimate.modelLabel}
@@ -157,6 +236,13 @@ export function TradeInEstimator() {
           <p className="text-center text-sm text-gray-600">
             Estimation médiane : <strong>{estimate.mid}€</strong>
           </p>
+          {estimate.marketDataUsed && (
+            <p className="text-center text-xs text-primary mt-2">
+              Sources : {estimate.marketSources.join(", ")}
+              {estimate.marketSyncedAt &&
+                ` · MAJ ${new Date(estimate.marketSyncedAt).toLocaleString("fr-FR")}`}
+            </p>
+          )}
           <p className="text-xs text-gray-500 mt-3 leading-relaxed text-center">
             {estimate.disclaimer}
           </p>

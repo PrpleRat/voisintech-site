@@ -45,6 +45,35 @@ export async function ensureTursoTables() {
         // Colonne déjà présente
       }
     }
+
+    const extraTables = [
+      `CREATE TABLE IF NOT EXISTS "TradeInPriceCache" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "modelId" TEXT NOT NULL,
+        "searchQuery" TEXT NOT NULL,
+        "source" TEXT NOT NULL,
+        "medianResale" INTEGER,
+        "buybackEstimate" INTEGER,
+        "sampleCount" INTEGER NOT NULL DEFAULT 0,
+        "rawPrices" TEXT,
+        "scrapeError" TEXT,
+        "scrapedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )`,
+      `CREATE TABLE IF NOT EXISTS "TradeInSyncRun" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "status" TEXT NOT NULL,
+        "modelsTotal" INTEGER NOT NULL,
+        "modelsOk" INTEGER NOT NULL,
+        "modelsFailed" INTEGER NOT NULL,
+        "details" TEXT,
+        "startedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "finishedAt" DATETIME
+      )`,
+    ];
+
+    for (const statement of extraTables) {
+      await client.execute(statement);
+    }
   })();
 
   return migrationPromise;

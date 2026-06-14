@@ -1,0 +1,19 @@
+name: Sync trade-in prices
+
+on:
+  schedule:
+    - cron: "30 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel cron sync
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: https://www.voisintech.fr
+        run: |
+          curl -fsS -H "Authorization: Bearer $CRON_SECRET" \
+            -H "x-cron-secret: $CRON_SECRET" \
+            "$SITE_URL/api/cron/sync-trade-in-prices"

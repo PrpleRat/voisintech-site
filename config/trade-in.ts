@@ -14,6 +14,8 @@ export interface TradeInModel {
   notes?: string;
 }
 
+export const CUSTOM_MODEL_ID = "custom";
+
 export interface TradeInCategory {
   id: TradeInCategoryId;
   label: string;
@@ -47,6 +49,7 @@ export const tradeInCatalog: TradeInCategory[] = [
       { id: "samsung-a", label: "Samsung Galaxy A (récent)", baseValue: 95 },
       { id: "xiaomi-recent", label: "Xiaomi / Redmi récent", baseValue: 75 },
       { id: "android-old", label: "Android entrée de gamme / ancien", baseValue: 25 },
+      { id: CUSTOM_MODEL_ID, label: "Autre modèle (préciser ci-dessous)", baseValue: 40 },
     ],
   },
   {
@@ -65,6 +68,7 @@ export const tradeInCatalog: TradeInCategory[] = [
       { id: "ipad-old", label: "iPad plus ancien", baseValue: 55 },
       { id: "samsung-tab", label: "Samsung Galaxy Tab récent", baseValue: 120 },
       { id: "tab-other", label: "Autre tablette Android", baseValue: 45 },
+      { id: CUSTOM_MODEL_ID, label: "Autre modèle (préciser ci-dessous)", baseValue: 35 },
     ],
   },
   {
@@ -83,6 +87,7 @@ export const tradeInCatalog: TradeInCategory[] = [
       { id: "win-standard", label: "PC portable standard (i3/i5, 8Go)", baseValue: 150 },
       { id: "win-old", label: "PC portable ancien (>6 ans)", baseValue: 45 },
       { id: "chromebook", label: "Chromebook", baseValue: 55 },
+      { id: CUSTOM_MODEL_ID, label: "Autre modèle (préciser ci-dessous)", baseValue: 50 },
     ],
   },
   {
@@ -95,6 +100,7 @@ export const tradeInCatalog: TradeInCategory[] = [
       { id: "pc-gaming", label: "PC fixe gamer (RTX dédiée)", baseValue: 520 },
       { id: "pc-bureau", label: "PC bureau standard", baseValue: 95 },
       { id: "pc-old", label: "PC fixe ancien / tour basique", baseValue: 35 },
+      { id: CUSTOM_MODEL_ID, label: "Autre modèle (préciser ci-dessous)", baseValue: 40 },
     ],
   },
   {
@@ -104,6 +110,7 @@ export const tradeInCatalog: TradeInCategory[] = [
       { id: "mon-4k", label: "Écran 27\"+ 4K / QHD premium", baseValue: 130 },
       { id: "mon-24fhd", label: "Écran 24\" Full HD", baseValue: 55 },
       { id: "mon-old", label: "Écran ancien / 19-22\"", baseValue: 18 },
+      { id: CUSTOM_MODEL_ID, label: "Autre modèle (préciser ci-dessous)", baseValue: 20 },
     ],
   },
   {
@@ -117,6 +124,7 @@ export const tradeInCatalog: TradeInCategory[] = [
       { id: "switch-oled", label: "Nintendo Switch OLED", baseValue: 210 },
       { id: "switch", label: "Nintendo Switch classique", baseValue: 130 },
       { id: "switch-lite", label: "Nintendo Switch Lite", baseValue: 75 },
+      { id: CUSTOM_MODEL_ID, label: "Autre modèle (préciser ci-dessous)", baseValue: 60 },
     ],
   },
 ];
@@ -135,6 +143,12 @@ export const tradeInDefects = [
   { value: "no-charger", label: "Sans chargeur / câble", modifier: -0.06 },
   { value: "icloud", label: "Compte iCloud / verrou non retiré", modifier: -0.5 },
 ] as const;
+
+export function getAllCatalogModels() {
+  return tradeInCatalog.flatMap((cat) =>
+    cat.models.map((m) => ({ ...m, categoryId: cat.id }))
+  );
+}
 
 export function getCategoryById(id: TradeInCategoryId) {
   return tradeInCatalog.find((c) => c.id === id);
