@@ -4,8 +4,10 @@ import { Hero } from "@/components/Hero";
 import { ServiceCard } from "@/components/ServiceCard";
 import { TestimonialCarousel } from "@/components/TestimonialCard";
 import { ServiceAreaMap } from "@/components/ServiceAreaMap";
-import { services, howItWorks, trustBadges, business } from "@/config/content";
-import { pageMetadata } from "@/lib/seo";
+import { services, howItWorks, trustBadges, business, homeFaq } from "@/config/content";
+import { pageMetadata, absoluteUrl, faqJsonLd } from "@/lib/seo";
+import { FAQAccordion } from "@/components/FAQAccordion";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { Button } from "@/components/ui/button";
 import {
   BadgeCheck,
@@ -24,8 +26,11 @@ export const metadata: Metadata = pageMetadata({
 const badgeIcons = [BadgeCheck, Shield, Heart, MessageCircle];
 
 export default function HomePage() {
+  const pageUrl = absoluteUrl("/");
+
   return (
     <>
+      <JsonLd data={faqJsonLd(homeFaq, pageUrl, "FAQ VoisinTech dépannage Toulouse")} />
       <Hero />
 
       <section className="py-8 bg-white border-b border-gray-100">
@@ -106,6 +111,20 @@ export default function HomePage() {
 
       <TestimonialCarousel />
       <ServiceAreaMap className="pt-0" />
+
+      <section className="section-padding bg-white">
+        <div className="container-page max-w-3xl">
+          <h2 className="text-3xl font-bold text-center mb-8">
+            Questions fréquentes — dépannage informatique Toulouse
+          </h2>
+          <FAQAccordion items={homeFaq} />
+          <p className="text-center mt-6">
+            <Link href="/contact" className="text-primary font-semibold hover:underline">
+              Plus de questions ? Contactez VoisinTech →
+            </Link>
+          </p>
+        </div>
+      </section>
 
       <section className="section-padding bg-primary text-white">
         <div className="container-page text-center">

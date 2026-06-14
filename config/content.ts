@@ -161,6 +161,29 @@ export const testimonials = [
   },
 ];
 
+export const homeFaq = [
+  {
+    question: "Qui est VoisinTech ?",
+    answer:
+      "VoisinTech (voisintech.fr) est un service de dépannage informatique à domicile à Toulouse, spécialisé dans l'accompagnement des seniors et des familles. Intervention patiente, tarifs transparents, devis gratuit.",
+  },
+  {
+    question: "Comment trouver un dépannage informatique à Toulouse ?",
+    answer:
+      "Appelez le 05 82 95 06 42, demandez un devis sur voisintech.fr/devis ou consultez voisintech.fr/villes/toulouse.",
+  },
+  {
+    question: "VoisinTech intervient-il dans mon quartier ?",
+    answer:
+      "Oui, à Toulouse et en agglomération : Minimes, Saint-Cyprien, Côte Pavée, Saint-Michel, Blagnac, Colomiers, Tournefeuille, Balma, L'Union…",
+  },
+  {
+    question: "Quel est le tarif d'un dépannage informatique ?",
+    answer:
+      "50€/h à domicile (40€/h tarif senior 65+). Diagnostic 30€. Devis toujours gratuit avant réparation.",
+  },
+];
+
 export const faq = [
   {
     question: "Quelle est votre zone d'intervention ?",

@@ -31,7 +31,7 @@ export const cities: CityPage[] = [
       "Devis gratuit avant chaque réparation",
     ],
     body: [
-      "Que vous habitiez le centre-ville, les Minimes, Rangueil, Borderouge ou Saint-Cyprien, je me déplace à votre domicile pour diagnostiquer et réparer vos appareils sur place. Pas besoin d'emmener votre ordinateur en magasin : VoisinTech vient à vous, comme un voisin de confiance.",
+      "Que vous habitiez le centre-ville, les **Minimes**, **Saint-Cyprien**, la **Côte Pavée**, **Saint-Michel**, Rangueil, Borderouge ou Busca, je me déplace à votre domicile pour diagnostiquer et réparer vos appareils sur place. Pas besoin d'emmener votre ordinateur en magasin : VoisinTech vient à vous, comme un voisin de confiance.",
       "Le dépannage informatique à Toulouse couvre la réparation PC et Mac (lenteur, écran noir, virus), la configuration de smartphones et tablettes, l'optimisation du Wi-Fi et de la box internet, ainsi que l'aide aux démarches en ligne (CAF, impôts, Ameli, France Identité).",
       "VoisinTech est le service de proximité pensé pour les seniors, les familles et les PME de la métropole toulousaine. Tarifs affichés à l'avance, explications en français simple, garantie 30 jours sur les réparations.",
     ],
@@ -81,6 +81,23 @@ export const cities: CityPage[] = [
     intro:
       "Habitants de Blagnac, je viens à domicile pour dépanner vos ordinateurs, téléphones et box internet. Un service de proximité, comme un voisin de confiance.",
     highlights: ["Proche de Toulouse — intervention rapide", "Tarifs transparents", "Devis gratuit"],
+    body: [
+      "À Blagnac, que vous soyez près de l'aéroport, du MEETT ou du centre-ville, VoisinTech se déplace à domicile pour dépanner PC, Mac, smartphones et box internet. Fini les allers-retours en magasin avec un ordinateur qui ne démarre plus.",
+      "Le dépannage informatique à Blagnac inclut la réparation (lenteur, virus, écran noir), la configuration d'appareils neufs, l'optimisation du Wi-Fi et l'aide aux démarches en ligne. Service particulièrement adapté aux seniors et aux familles.",
+    ],
+    nearbySlugs: ["toulouse", "colomiers", "tournefeuille"],
+    faq: [
+      {
+        question: "Intervenez-vous à Blagnac sans frais de déplacement ?",
+        answer:
+          "Oui, le déplacement est gratuit jusqu'à 15 km autour de Toulouse, ce qui inclut Blagnac. Au-delà, un petit supplément est annoncé à l'avance.",
+      },
+      {
+        question: "Quel tarif pour un dépannage à Blagnac ?",
+        answer:
+          "50€/h à domicile (40€/h tarif senior). Diagnostic 30€. Devis gratuit avant toute réparation.",
+      },
+    ],
   },
   {
     slug: "colomiers",
@@ -92,6 +109,18 @@ export const cities: CityPage[] = [
     intro:
       "À Colomiers, je propose un dépannage informatique humain à domicile : diagnostic clair, réparation sur place, explications simples.",
     highlights: ["Zone couverte sans supplément proche", "RDV flexibles", "Paiement chèque ou espèces"],
+    body: [
+      "Colomiers, Andromède, En Jacca ou le centre : VoisinTech intervient chez vous pour tous vos problèmes informatiques. Un service humain, avec des explications claires et un devis avant chaque intervention.",
+      "Réparation ordinateur, aide smartphone, Wi-Fi instable, virus ou formation numérique — le technicien s'adapte à votre niveau, sans jargon technique.",
+    ],
+    nearbySlugs: ["toulouse", "blagnac", "tournefeuille"],
+    faq: [
+      {
+        question: "Combien de temps pour une intervention à Colomiers ?",
+        answer:
+          "Réponse sous 2 h en journée. Intervention souvent le jour même ou le lendemain selon disponibilité.",
+      },
+    ],
   },
   {
     slug: "tournefeuille",
@@ -103,6 +132,11 @@ export const cities: CityPage[] = [
     intro:
       "À Tournefeuille, je vous aide à retrouver un ordinateur ou un téléphone qui fonctionne — et à comprendre ce qui a été fait.",
     highlights: ["Service patient pour seniors", "Assistance démarches en ligne", "Garantie 30 jours"],
+    body: [
+      "À Tournefeuille, VoisinTech accompagne seniors et familles pour retrouver un numérique serein : PC qui rame, téléphone mal configuré, box qui coupe, ou démarches administratives en ligne.",
+      "Intervention à domicile dans tout le secteur, avec tarif senior à 40€/h et garantie 30 jours sur les réparations.",
+    ],
+    nearbySlugs: ["toulouse", "colomiers", "balma"],
   },
   {
     slug: "balma",
@@ -114,6 +148,11 @@ export const cities: CityPage[] = [
     intro:
       "À Balma, j'interviens à domicile pour tous vos soucis numériques : panne, lenteur, configuration ou formation.",
     highlights: ["Interventions en journée et soirée", "Sans abonnement", "RC Pro assurée"],
+    body: [
+      "Balma, Gramont, Lapujade : dépannage informatique à domicile avec VoisinTech. Diagnostic sur place, réparation immédiate quand c'est possible, et explications en français simple.",
+      "Idéal si vous préférez un interlocuteur de proximité plutôt qu'une grande enseigne — surtout pour les seniors et les personnes peu à l'aise avec le numérique.",
+    ],
+    nearbySlugs: ["toulouse", "l-union", "tournefeuille"],
   },
   {
     slug: "l-union",
@@ -125,6 +164,11 @@ export const cities: CityPage[] = [
     intro:
       "À L'Union, profitez d'un dépannage informatique de proximité : je viens chez vous, je répare et j'explique.",
     highlights: ["Réponse sous 2h en journée", "Tarif senior 40€/h", "Devis avant intervention"],
+    body: [
+      "À L'Union et aux alentours, VoisinTech propose un dépannage informatique patient à domicile : ordinateur, smartphone, Wi-Fi et démarches en ligne.",
+      "Devis gratuit, tarifs affichés à l'avance, déplacement inclus dans la zone — appelez le 05 82 95 06 42 pour une réponse rapide.",
+    ],
+    nearbySlugs: ["toulouse", "balma"],
   },
   {
     slug: "lourdes",

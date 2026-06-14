@@ -126,6 +126,36 @@ export const blogArticles: BlogArticle[] = [
     ],
   },
   {
+    slug: "depannage-informatique-minimes-toulouse",
+    title: "Dépannage informatique aux Minimes (Toulouse) — intervention à domicile",
+    excerpt:
+      "PC lent, Wi-Fi ou smartphone aux Minimes ? VoisinTech intervient chez vous, quartier par quartier, sans jargon.",
+    date: "2026-06-15",
+    readTime: "4 min",
+    content: [
+      "Vous habitez le quartier des **Minimes**, Saint-Agne ou les secteurs proches (Bonnefoy, Roseraie) et votre ordinateur ou votre box vous pose problème ? VoisinTech propose un **dépannage informatique à domicile aux Minimes**, comme un voisin de confiance.",
+      "**Problèmes fréquents ici** — Lenteur Windows après une mise à jour, Wi-Fi faible dans les appartements, imprimante qui ne répond plus, arnaques par SMS, smartphone mal configuré. Un diagnostic sur place permet souvent de trancher en 30 minutes.",
+      "**Pourquoi à domicile ?** — Pas de transport avec un PC lourd, pas de file d'attente en magasin. Le technicien voit votre box, votre imprimante et votre environnement réel — idéal pour les seniors du quartier.",
+      "**Tarifs** — 50€/h (40€/h tarif senior 65+). Diagnostic 30€. **Devis gratuit** avant réparation. Déplacement gratuit jusqu'à 15 km.",
+      "**Délai** — Réponse sous 2 h en journée. Appelez le **05 82 95 06 42** ou demandez un devis sur voisintech.fr/devis.",
+    ],
+  },
+  {
+    slug: "depannage-informatique-saint-cyprien-toulouse",
+    title: "Dépannage informatique Saint-Cyprien & Côte Pavée — à domicile",
+    excerpt:
+      "Technicien informatique à Saint-Cyprien, Busca, Côte Pavée ou Ormeau : réparation PC, aide seniors, Wi-Fi.",
+    date: "2026-06-15",
+    readTime: "4 min",
+    content: [
+      "Saint-Cyprien, Busca, la **Côte Pavée**, Saint-Michel ou l'Ormeau : VoisinTech couvre ces quartiers toulousains pour tout **dépannage informatique à domicile**.",
+      "**Services** — Réparation PC/Mac (lenteur, virus, écran noir), configuration smartphone et tablette, optimisation Wi-Fi et box, aide aux démarches en ligne (Ameli, impôts, CAF).",
+      "**Public visé** — Seniors qui veulent un interlocuteur patient, familles qui n'ont pas le temps d'emmener un PC en magasin, petits pros du quartier avec un souci réseau ou sauvegarde.",
+      "**Transparence** — Tarif annoncé avant intervention, explications en français simple, garantie 30 jours. Tarif senior **40€/h**.",
+      "Besoin d'un technicien à Saint-Cyprien ou Côte Pavée ? Contactez VoisinTech sur voisintech.fr/contact ou appelez le **05 82 95 06 42**.",
+    ],
+  },
+  {
     slug: "aide-informatique-seniors-toulouse",
     title: "Aide informatique seniors à Toulouse : accompagnement patient à domicile",
     excerpt:
