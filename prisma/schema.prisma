@@ -119,3 +119,93 @@ model StorePackItem {
 
   @@unique([packId, itemId])
 }
+
+// ─── Train Suite (apps iOS + sync cloud) ─────────────────────────────────────
+
+model SuiteAccount {
+  id            String              @id @default(cuid())
+  email         String              @unique
+  passwordHash  String
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  memberships   SuiteMembership[]
+  refreshTokens SuiteRefreshToken[]
+}
+
+model SuiteWorkspace {
+  id              String               @id @default(cuid())
+  name            String
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  memberships     SuiteMembership[]
+  apiKeys         SuiteApiKey[]
+  businessProfile SuiteBusinessProfile?
+  clients         SuiteClient[]
+}
+
+model SuiteMembership {
+  id          String         @id @default(cuid())
+  accountId   String
+  workspaceId String
+  role        String         @default("owner")
+  createdAt   DateTime       @default(now())
+  account     SuiteAccount   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  workspace   SuiteWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, workspaceId])
+}
+
+model SuiteBusinessProfile {
+  id           String         @id @default(cuid())
+  workspaceId  String         @unique
+  businessName String         @default("")
+  ownerName    String         @default("")
+  address      String         @default("")
+  phone        String         @default("")
+  email        String         @default("")
+  siret        String         @default("")
+  updatedAt    DateTime       @updatedAt
+  workspace    SuiteWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model SuiteClient {
+  id          String         @id @default(cuid())
+  workspaceId String
+  externalId  String?
+  name        String
+  companyName String         @default("")
+  email       String         @default("")
+  phone       String         @default("")
+  address     String         @default("")
+  notes       String         @default("")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+  workspace   SuiteWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, externalId])
+  @@index([workspaceId, updatedAt])
+}
+
+model SuiteApiKey {
+  id          String         @id @default(cuid())
+  workspaceId String
+  name        String         @default("default")
+  keyPrefix   String
+  keyHash     String
+  createdAt   DateTime       @default(now())
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+  workspace   SuiteWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([keyHash])
+}
+
+model SuiteRefreshToken {
+  id        String       @id @default(cuid())
+  accountId String
+  tokenHash String       @unique
+  expiresAt DateTime
+  createdAt DateTime     @default(now())
+  account   SuiteAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
