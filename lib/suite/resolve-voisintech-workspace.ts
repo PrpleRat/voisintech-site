@@ -25,7 +25,8 @@ export async function resolveVoisinTechWorkspaceId(
     .map((email) => email?.trim().toLowerCase())
     .filter((email): email is string => Boolean(email));
 
-  for (const email of [...new Set(ownerEmails)]) {
+  const uniqueEmails = Array.from(new Set(ownerEmails));
+  for (const email of uniqueEmails) {
     const profile = await prisma.suiteBusinessProfile.findFirst({
       where: { email },
       select: { workspaceId: true },
