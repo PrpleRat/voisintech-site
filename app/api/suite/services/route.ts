@@ -5,7 +5,6 @@ import {
   listWorkspaceServices,
   replaceWorkspaceServices,
   serviceToDTO,
-  type SuiteServiceDTO,
 } from "@/lib/suite/service-catalog";
 import { suiteError, suiteJson, suiteUnauthorized } from "@/lib/suite/responses";
 
