@@ -11,6 +11,7 @@ interface SuiteServicesPanelProps {
 
 export function SuiteServicesPanel({ onCatalogChange }: SuiteServicesPanelProps) {
   const [services, setServices] = useState<SuiteServiceDTO[]>([]);
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -31,6 +32,7 @@ export function SuiteServicesPanel({ onCatalogChange }: SuiteServicesPanelProps)
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Chargement impossible");
       applyServices(data.services ?? []);
+      setWorkspaceId(data.workspaceId ?? null);
       if ((data.services ?? []).length === 0) {
         const seedRes = await fetch("/api/admin/suite-services", { method: "POST" });
         const seedData = await seedRes.json();
@@ -106,7 +108,19 @@ export function SuiteServicesPanel({ onCatalogChange }: SuiteServicesPanelProps)
         </ul>
       )}
 
-      {message && <p className="text-xs text-primary">{message}</p>}
+      {message && (
+        <p className={`text-xs leading-relaxed ${message.includes("introuvable") ? "text-red-600" : "text-primary"}`}>
+          {message}
+        </p>
+      )}
+
+      {workspaceId && !loading && (
+        <p className="text-xs text-gray-400">
+          Workspace : <code className="text-gray-600">{workspaceId}</code>
+          {" — tu peux le copier dans Vercel comme "}
+          <code className="text-gray-600">TRAIN_SUITE_WORKSPACE_ID</code>
+        </p>
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { getPrisma } from "@/lib/prisma";
-import { hashApiKey } from "@/lib/suite/api-key";
+import { hashApiKey, isApiKeyFormat } from "@/lib/suite/api-key";
+import { resolveVoisinTechWorkspaceId } from "@/lib/suite/resolve-voisintech-workspace";
 
 export type QuoteLeadInput = {
   name: string;
@@ -118,25 +119,26 @@ async function findPossibleNameDuplicates(
 export async function createSuiteClientFromQuoteLead(
   input: QuoteLeadInput
 ): Promise<QuoteLeadResult | null> {
-  const apiKey = process.env.TRAIN_SUITE_API_KEY?.trim();
-  if (!apiKey) return null;
-
   const prisma = await getPrisma();
-  const keyHash = hashApiKey(apiKey);
-  const keyRecord = await prisma.suiteApiKey.findFirst({
-    where: { keyHash, revokedAt: null },
-  });
-  if (!keyRecord) {
-    console.warn("[Suite quote lead] TRAIN_SUITE_API_KEY invalide ou révoquée");
+  const workspaceId = await resolveVoisinTechWorkspaceId(prisma);
+  if (!workspaceId) {
+    console.warn("[Suite quote lead] Workspace VoisinTech introuvable");
     return null;
   }
 
-  await prisma.suiteApiKey.update({
-    where: { id: keyRecord.id },
-    data: { lastUsedAt: new Date() },
-  });
-
-  const workspaceId = keyRecord.workspaceId;
+  const apiKey = process.env.TRAIN_SUITE_API_KEY?.trim();
+  if (apiKey && isApiKeyFormat(apiKey)) {
+    const keyHash = hashApiKey(apiKey);
+    const keyRecord = await prisma.suiteApiKey.findFirst({
+      where: { keyHash, revokedAt: null, workspaceId },
+    });
+    if (keyRecord) {
+      await prisma.suiteApiKey.update({
+        where: { id: keyRecord.id },
+        data: { lastUsedAt: new Date() },
+      });
+    }
+  }
   const name = input.name.trim();
   if (!name) return null;
 
