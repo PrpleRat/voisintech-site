@@ -1,6 +1,6 @@
-import { getPrisma } from "@/lib/prisma";
-import { hashApiKey, isApiKeyFormat } from "@/lib/suite/api-key";
-import { seedVoisinTechServices } from "@/lib/suite/service-catalog";
+import { getPrisma } from "../lib/prisma";
+import { hashApiKey, isApiKeyFormat } from "../lib/suite/api-key";
+import { seedVoisinTechServices } from "../lib/suite/service-catalog";
 
 async function resolveWorkspaceId(): Promise<string | null> {
   const workspaceId = process.env.TRAIN_SUITE_WORKSPACE_ID?.trim();
