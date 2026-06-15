@@ -1,10 +1,17 @@
 import { pricing } from "@/config/content";
+import {
+  suggestInterventionFromCatalog,
+  suggestQuoteLinesFromCatalog,
+  type SuiteServiceDTO,
+  type SuggestedQuoteLine,
+} from "@/lib/suite/service-catalog";
 
-/** Aligné sur config/content.ts — source de vérité site + deep links apps */
-export interface SuggestedQuoteLine {
-  label: string;
-  quantity: number;
-  unitPrice: number;
+export type { SuiteServiceDTO, SuggestedQuoteLine } from "@/lib/suite/service-catalog";
+
+export interface SuggestedIntervention {
+  serviceName: string;
+  durationMinutes: number;
+  price: number;
 }
 
 function euroAmount(raw: string): number {
@@ -41,9 +48,14 @@ export function followUpLineForDevice(deviceType: string): SuggestedQuoteLine {
 /** Lignes suggérées pour un lead devis web → FactuTrain */
 export function suggestQuoteLines(
   deviceType: string,
-  problemDesc = ""
-): SuggestedQuoteLine[] {
-  const lines: SuggestedQuoteLine[] = [
+  problemDesc = "",
+  catalog?: SuiteServiceDTO[]
+) {
+  if (catalog && catalog.length > 0) {
+    return suggestQuoteLinesFromCatalog(catalog, deviceType, problemDesc);
+  }
+
+  const lines = [
     {
       label: pricing.packages[0]?.label ?? "Diagnostic complet",
       quantity: 1,
@@ -64,14 +76,17 @@ export function suggestQuoteLines(
   return lines;
 }
 
-export interface SuggestedIntervention {
-  serviceName: string;
-  durationMinutes: number;
-  price: number;
-}
-
 /** Première intervention planifiée depuis un lead */
-export function suggestIntervention(deviceType: string, problemDesc = ""): SuggestedIntervention {
+export function suggestIntervention(
+  deviceType: string,
+  problemDesc = "",
+  catalog?: SuiteServiceDTO[]
+): SuggestedIntervention {
+  if (catalog && catalog.length > 0) {
+    const fromCatalog = suggestInterventionFromCatalog(catalog, deviceType, problemDesc);
+    if (fromCatalog) return fromCatalog;
+  }
+
   if (SECURITY_KEYWORDS.test(problemDesc)) {
     return { serviceName: "Pack sécurité", durationMinutes: 60, price: PKG_SECURITY };
   }
@@ -95,8 +110,12 @@ export function suggestIntervention(deviceType: string, problemDesc = ""): Sugge
   }
 }
 
-export function defaultInvoiceAmount(deviceType: string, problemDesc = ""): string {
-  const intervention = suggestIntervention(deviceType, problemDesc);
+export function defaultInvoiceAmount(
+  deviceType: string,
+  problemDesc = "",
+  catalog?: SuiteServiceDTO[]
+): string {
+  const intervention = suggestIntervention(deviceType, problemDesc, catalog);
   return intervention.price.toFixed(2);
 }
 

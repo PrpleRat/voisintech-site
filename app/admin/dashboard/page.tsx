@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { TrainAppLinks } from "@/components/TrainAppLinks";
 import { contactTrainActions, quoteTrainActions } from "@/lib/train-deeplinks";
 import { InventoryPanel } from "./InventoryPanel";
+import { SuiteServicesPanel } from "./SuiteServicesPanel";
+import type { SuiteServiceDTO } from "@/lib/voisintech-pricing";
 
 interface Quote {
   id: string;
@@ -141,6 +143,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function QuoteCard({
   quote,
+  catalog,
   expanded,
   onToggle,
   onUpdateStatus,
@@ -148,13 +151,14 @@ function QuoteCard({
   deleting,
 }: {
   quote: Quote;
+  catalog: SuiteServiceDTO[];
   expanded: boolean;
   onToggle: () => void;
   onUpdateStatus: (id: string, status: string) => void;
   onDelete: (id: string, label: string) => void;
   deleting?: boolean;
 }) {
-  const trainActions = quoteTrainActions(quote);
+  const trainActions = quoteTrainActions(quote, catalog);
 
   return (
     <article className="card">
@@ -301,6 +305,7 @@ export default function AdminDashboardPage() {
   const [contactFilter, setContactFilter] = useState<"all" | "new" | "done">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [suiteCatalog, setSuiteCatalog] = useState<SuiteServiceDTO[]>([]);
 
   useEffect(() => {
     loadData();
@@ -439,6 +444,10 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
+        <div className="mb-8">
+          <SuiteServicesPanel onCatalogChange={setSuiteCatalog} />
+        </div>
+
         <div className="flex gap-4 mb-6 flex-wrap">
           <Button
             variant={tab === "quotes" ? "default" : "outline"}
@@ -491,6 +500,7 @@ export default function AdminDashboardPage() {
               <QuoteCard
                 key={q.id}
                 quote={q}
+                catalog={suiteCatalog}
                 expanded={expandedId === q.id}
                 onToggle={() => setExpandedId(expandedId === q.id ? null : q.id)}
                 onUpdateStatus={(id, status) => updateStatus("quote", id, status)}

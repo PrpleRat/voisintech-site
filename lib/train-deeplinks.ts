@@ -2,6 +2,7 @@ import {
   defaultInvoiceAmount,
   suggestIntervention,
   suggestQuoteLines,
+  type SuiteServiceDTO,
 } from "@/lib/voisintech-pricing";
 
 export interface QuoteLinkData {
@@ -51,8 +52,8 @@ function interventionNotes(data: QuoteLinkData) {
 }
 
 /** AgendaTrain — nouvelle intervention (prefill prêt pour Phase 2 iOS) */
-export function agendaNewIntervention(data: QuoteLinkData) {
-  const service = suggestIntervention(data.deviceType, data.problemDesc);
+export function agendaNewIntervention(data: QuoteLinkData, catalog?: SuiteServiceDTO[]) {
+  const service = suggestIntervention(data.deviceType, data.problemDesc, catalog);
   return buildDeepLink("agendatrain", "interventions", "new", {
     client: data.name,
     phone: data.phone,
@@ -68,9 +69,10 @@ export function agendaNewIntervention(data: QuoteLinkData) {
 /** AgendaTrain — intervention avec créneau suggéré (date + heure) */
 export function agendaNewInterventionAt(
   data: QuoteLinkData,
-  slot: { isoDate: string; time: string }
+  slot: { isoDate: string; time: string },
+  catalog?: SuiteServiceDTO[]
 ) {
-  const service = suggestIntervention(data.deviceType, data.problemDesc);
+  const service = suggestIntervention(data.deviceType, data.problemDesc, catalog);
   return buildDeepLink("agendatrain", "interventions", "new", {
     client: data.name,
     phone: data.phone,
@@ -129,8 +131,8 @@ export function agendaNewClient(data: Pick<QuoteLinkData, "name" | "phone" | "em
 }
 
 /** FactuTrain — nouveau devis */
-export function factuTrainNewQuote(data: QuoteLinkData) {
-  const lines = suggestQuoteLines(data.deviceType, data.problemDesc);
+export function factuTrainNewQuote(data: QuoteLinkData, catalog?: SuiteServiceDTO[]) {
+  const lines = suggestQuoteLines(data.deviceType, data.problemDesc, catalog);
   const params: Record<string, string | undefined> = {
     client: data.name,
     phone: data.phone,
@@ -150,9 +152,9 @@ export function factuTrainNewQuote(data: QuoteLinkData) {
 }
 
 /** FactuTrain — nouvelle facture (prefill supporté par l'app) */
-export function factuTrainNewInvoice(data: QuoteLinkData, amount?: string) {
+export function factuTrainNewInvoice(data: QuoteLinkData, amount?: string, catalog?: SuiteServiceDTO[]) {
   const date = new Date().toISOString().split("T")[0];
-  const resolvedAmount = amount ?? defaultInvoiceAmount(data.deviceType, data.problemDesc);
+  const resolvedAmount = amount ?? defaultInvoiceAmount(data.deviceType, data.problemDesc, catalog);
   return buildDeepLink("factutrain", "invoices", "new", {
     amount: resolvedAmount,
     client: data.name,
@@ -162,9 +164,9 @@ export function factuTrainNewInvoice(data: QuoteLinkData, amount?: string) {
 }
 
 /** TrainCA — déclarer un CA (prefill supporté par l'app) */
-export function trainCANewRevenue(data: QuoteLinkData, amount?: string) {
+export function trainCANewRevenue(data: QuoteLinkData, amount?: string, catalog?: SuiteServiceDTO[]) {
   const date = new Date().toISOString().split("T")[0];
-  const resolvedAmount = amount ?? defaultInvoiceAmount(data.deviceType, data.problemDesc);
+  const resolvedAmount = amount ?? defaultInvoiceAmount(data.deviceType, data.problemDesc, catalog);
   return buildDeepLink("trainca", "revenue", "add", {
     amount: resolvedAmount,
     client: data.name,
@@ -185,7 +187,10 @@ export interface TrainAppAction {
   variant?: "default" | "outline" | "secondary";
 }
 
-export function quoteTrainActions(data: QuoteLinkData): {
+export function quoteTrainActions(
+  data: QuoteLinkData,
+  catalog?: SuiteServiceDTO[]
+): {
   workflow: TrainAppAction[];
   postIntervention: TrainAppAction[];
 } {
@@ -200,14 +205,14 @@ export function quoteTrainActions(data: QuoteLinkData): {
     {
       id: "agenda",
       label: "Planifier RDV",
-      href: agendaNewIntervention(data),
+      href: agendaNewIntervention(data, catalog),
       description: "AgendaTrain",
       variant: "outline" as const,
     },
     {
       id: "quote",
       label: "Créer devis",
-      href: factuTrainNewQuote(data),
+      href: factuTrainNewQuote(data, catalog),
       description: "FactuTrain",
       variant: "outline" as const,
     },
@@ -224,14 +229,14 @@ export function quoteTrainActions(data: QuoteLinkData): {
     {
       id: "invoice",
       label: "Facturer",
-      href: factuTrainNewInvoice(data),
+      href: factuTrainNewInvoice(data, undefined, catalog),
       description: "FactuTrain",
       variant: "outline" as const,
     },
     {
       id: "revenue",
       label: "Déclarer CA",
-      href: trainCANewRevenue(data),
+      href: trainCANewRevenue(data, undefined, catalog),
       description: "TrainCA",
       variant: "outline" as const,
     },

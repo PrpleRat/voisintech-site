@@ -141,6 +141,7 @@ model SuiteWorkspace {
   apiKeys         SuiteApiKey[]
   businessProfile SuiteBusinessProfile?
   clients         SuiteClient[]
+  serviceTypes    SuiteServiceType[]
 }
 
 model SuiteMembership {
@@ -199,6 +200,25 @@ model SuiteApiKey {
   workspace   SuiteWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([keyHash])
+}
+
+model SuiteServiceType {
+  id                     String         @id @default(cuid())
+  workspaceId            String
+  name                   String
+  defaultDurationMinutes Int            @default(60)
+  defaultPriceCents      Int            @default(0)
+  sortOrder              Int            @default(0)
+  matchDeviceTypes       String         @default("[]")
+  matchKeywords          String         @default("[]")
+  quoteRole              String         @default("")
+  isActive               Boolean        @default(true)
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  workspace              SuiteWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId, sortOrder])
 }
 
 model SuiteRefreshToken {

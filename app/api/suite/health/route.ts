@@ -12,6 +12,7 @@ export async function GET() {
       "GET|POST /api/suite/clients",
       "GET|PATCH|DELETE /api/suite/clients/:id",
       "GET|PUT /api/suite/profile",
+      "GET|PUT|PATCH /api/suite/services",
       "GET|POST /api/suite/api-keys",
     ],
   });
