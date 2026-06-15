@@ -1,3 +1,9 @@
+import {
+  defaultInvoiceAmount,
+  suggestIntervention,
+  suggestQuoteLines,
+} from "@/lib/voisintech-pricing";
+
 export interface QuoteLinkData {
   name: string;
   phone: string;
@@ -46,12 +52,16 @@ function interventionNotes(data: QuoteLinkData) {
 
 /** AgendaTrain — nouvelle intervention (prefill prêt pour Phase 2 iOS) */
 export function agendaNewIntervention(data: QuoteLinkData) {
+  const service = suggestIntervention(data.deviceType, data.problemDesc);
   return buildDeepLink("agendatrain", "interventions", "new", {
     client: data.name,
     phone: data.phone,
     address: fullAddress(data),
     date: data.preferredDate?.split("T")[0],
     notes: interventionNotes(data),
+    service: service.serviceName,
+    price: service.price.toFixed(2),
+    duration: String(service.durationMinutes),
   });
 }
 
@@ -60,6 +70,7 @@ export function agendaNewInterventionAt(
   data: QuoteLinkData,
   slot: { isoDate: string; time: string }
 ) {
+  const service = suggestIntervention(data.deviceType, data.problemDesc);
   return buildDeepLink("agendatrain", "interventions", "new", {
     client: data.name,
     phone: data.phone,
@@ -67,6 +78,9 @@ export function agendaNewInterventionAt(
     date: slot.isoDate,
     time: slot.time,
     notes: interventionNotes(data),
+    service: service.serviceName,
+    price: service.price.toFixed(2),
+    duration: String(service.durationMinutes),
   });
 }
 
@@ -116,20 +130,31 @@ export function agendaNewClient(data: Pick<QuoteLinkData, "name" | "phone" | "em
 
 /** FactuTrain — nouveau devis */
 export function factuTrainNewQuote(data: QuoteLinkData) {
-  return buildDeepLink("factutrain", "quotes", "new", {
+  const lines = suggestQuoteLines(data.deviceType, data.problemDesc);
+  const params: Record<string, string | undefined> = {
     client: data.name,
     phone: data.phone,
     email: data.email,
     address: fullAddress(data),
     description: interventionNotes(data),
+  };
+
+  lines.forEach((line, index) => {
+    const suffix = index === 0 ? "" : String(index + 1);
+    params[`label${suffix}`] = line.label;
+    params[`amount${suffix}`] = line.unitPrice.toFixed(2);
+    params[`qty${suffix}`] = String(line.quantity);
   });
+
+  return buildDeepLink("factutrain", "quotes", "new", params);
 }
 
 /** FactuTrain — nouvelle facture (prefill supporté par l'app) */
-export function factuTrainNewInvoice(data: QuoteLinkData, amount = "50.00") {
+export function factuTrainNewInvoice(data: QuoteLinkData, amount?: string) {
   const date = new Date().toISOString().split("T")[0];
+  const resolvedAmount = amount ?? defaultInvoiceAmount(data.deviceType, data.problemDesc);
   return buildDeepLink("factutrain", "invoices", "new", {
-    amount,
+    amount: resolvedAmount,
     client: data.name,
     label: `Dépannage ${data.deviceType}`,
     date,
@@ -137,10 +162,11 @@ export function factuTrainNewInvoice(data: QuoteLinkData, amount = "50.00") {
 }
 
 /** TrainCA — déclarer un CA (prefill supporté par l'app) */
-export function trainCANewRevenue(data: QuoteLinkData, amount = "50.00") {
+export function trainCANewRevenue(data: QuoteLinkData, amount?: string) {
   const date = new Date().toISOString().split("T")[0];
+  const resolvedAmount = amount ?? defaultInvoiceAmount(data.deviceType, data.problemDesc);
   return buildDeepLink("trainca", "revenue", "add", {
-    amount,
+    amount: resolvedAmount,
     client: data.name,
     label: `Dépannage ${data.deviceType}`,
     date,
