@@ -11,6 +11,36 @@ export type QuoteLeadInput = {
   problemDesc?: string;
 };
 
+export type QuoteLeadResult = {
+  clientId: string;
+  action: "created" | "updated";
+  possibleDuplicateIds: string[];
+};
+
+/** Marqueur machine dans les notes — parsé par les apps Train Suite. */
+export const SUITE_REVIEW_MARKER_PREFIX = "<!--SUITE_REVIEW:possible_duplicate:";
+export const SUITE_REVIEW_MARKER_SUFFIX = "-->";
+
+export function parseReviewMarker(notes: string): string[] {
+  const match = notes.match(/<!--SUITE_REVIEW:possible_duplicate:([a-z0-9_,]+)-->/i);
+  if (!match?.[1]) return [];
+  return match[1].split(",").filter(Boolean);
+}
+
+export function stripReviewMarker(notes: string): string {
+  return notes
+    .replace(/<!--SUITE_REVIEW:possible_duplicate:[a-z0-9_,]+-->/gi, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+export function withReviewMarker(notes: string, duplicateIds: string[]): string {
+  const clean = stripReviewMarker(notes);
+  if (duplicateIds.length === 0) return clean;
+  const marker = `${SUITE_REVIEW_MARKER_PREFIX}${duplicateIds.join(",")}${SUITE_REVIEW_MARKER_SUFFIX}`;
+  return clean ? `${clean}\n${marker}` : marker;
+}
+
 function buildNotes(input: QuoteLeadInput): string {
   const parts = ["Lead formulaire devis voisintech.fr"];
   if (input.deviceType) parts.push(`Appareil : ${input.deviceType}`);
@@ -18,10 +48,76 @@ function buildNotes(input: QuoteLeadInput): string {
   return parts.join("\n");
 }
 
-/** Crée ou met à jour un client Suite depuis un devis site (clé API workspace VoisinTech). */
+function normalizePhone(value: string): string {
+  return value.replace(/\D/g, "");
+}
+
+function normalizeEmail(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function normalizeName(value: string): string {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+async function findExistingByContact(
+  workspaceId: string,
+  phone: string,
+  email: string
+) {
+  const prisma = await getPrisma();
+  const phoneDigits = normalizePhone(phone);
+  const emailNorm = normalizeEmail(email);
+
+  if (emailNorm) {
+    const byEmail = await prisma.suiteClient.findFirst({
+      where: {
+        workspaceId,
+        deletedAt: null,
+        email: emailNorm,
+      },
+    });
+    if (byEmail) return byEmail;
+  }
+
+  if (phoneDigits.length >= 8) {
+    const clients = await prisma.suiteClient.findMany({
+      where: { workspaceId, deletedAt: null },
+      take: 500,
+      orderBy: { updatedAt: "desc" },
+    });
+    return (
+      clients.find((c) => normalizePhone(c.phone) === phoneDigits) ?? null
+    );
+  }
+
+  return null;
+}
+
+async function findPossibleNameDuplicates(
+  workspaceId: string,
+  name: string,
+  excludeId?: string
+): Promise<string[]> {
+  const target = normalizeName(name);
+  if (!target) return [];
+
+  const prisma = await getPrisma();
+  const clients = await prisma.suiteClient.findMany({
+    where: { workspaceId, deletedAt: null },
+    take: 500,
+    orderBy: { updatedAt: "desc" },
+  });
+
+  return clients
+    .filter((c) => c.id !== excludeId && normalizeName(c.name) === target)
+    .map((c) => c.id);
+}
+
+/** Crée ou met à jour un client Suite depuis un devis site (clé API workspace). */
 export async function createSuiteClientFromQuoteLead(
   input: QuoteLeadInput
-): Promise<{ clientId: string } | null> {
+): Promise<QuoteLeadResult | null> {
   const apiKey = process.env.TRAIN_SUITE_API_KEY?.trim();
   if (!apiKey) return null;
 
@@ -48,21 +144,15 @@ export async function createSuiteClientFromQuoteLead(
     .filter(Boolean)
     .join(", ");
   const phone = input.phone.trim();
-  const email = input.email.trim().toLowerCase();
-  const notes = buildNotes(input);
+  const email = normalizeEmail(input.email);
+  const baseNotes = buildNotes(input);
 
-  const externalId = `quote-lead:${email || phone || name}`
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .slice(0, 120);
+  const existing = await findExistingByContact(workspaceId, phone, email);
 
-  const existing = await prisma.suiteClient.findUnique({
-    where: {
-      workspaceId_externalId: { workspaceId, externalId },
-    },
-  });
-
-  if (existing && !existing.deletedAt) {
+  if (existing) {
+    const mergedNotes = existing.notes
+      ? `${stripReviewMarker(existing.notes)}\n---\n${baseNotes}`
+      : baseNotes;
     const updated = await prisma.suiteClient.update({
       where: { id: existing.id },
       data: {
@@ -70,12 +160,26 @@ export async function createSuiteClientFromQuoteLead(
         phone: phone || existing.phone,
         email: email || existing.email,
         address: fullAddress || existing.address,
-        notes: existing.notes ? `${existing.notes}\n---\n${notes}` : notes,
+        notes: mergedNotes,
         deletedAt: null,
       },
     });
-    return { clientId: updated.id };
+    return {
+      clientId: updated.id,
+      action: "updated",
+      possibleDuplicateIds: [],
+    };
   }
+
+  const phoneDigits = normalizePhone(phone);
+  const externalId = email
+    ? `quote-lead:email:${email}`
+    : phoneDigits.length >= 8
+      ? `quote-lead:phone:${phoneDigits}`
+      : `quote-lead:${crypto.randomUUID()}`;
+
+  const possibleDuplicateIds = await findPossibleNameDuplicates(workspaceId, name);
+  const notes = withReviewMarker(baseNotes, possibleDuplicateIds);
 
   const client = await prisma.suiteClient.create({
     data: {
@@ -89,5 +193,22 @@ export async function createSuiteClientFromQuoteLead(
     },
   });
 
-  return { clientId: client.id };
+  for (const dupId of possibleDuplicateIds) {
+    const dup = await prisma.suiteClient.findUnique({ where: { id: dupId } });
+    if (!dup || dup.deletedAt) continue;
+    const existingIds = parseReviewMarker(dup.notes);
+    if (existingIds.includes(client.id)) continue;
+    await prisma.suiteClient.update({
+      where: { id: dupId },
+      data: {
+        notes: withReviewMarker(dup.notes, [...existingIds, client.id]),
+      },
+    });
+  }
+
+  return {
+    clientId: client.id,
+    action: "created",
+    possibleDuplicateIds,
+  };
 }
