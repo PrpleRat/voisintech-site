@@ -12,6 +12,7 @@ interface SuiteServicesPanelProps {
 export function SuiteServicesPanel({ onCatalogChange }: SuiteServicesPanelProps) {
   const [services, setServices] = useState<SuiteServiceDTO[]>([]);
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
+  const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -52,6 +53,28 @@ export function SuiteServicesPanel({ onCatalogChange }: SuiteServicesPanelProps)
     load();
   }, [load]);
 
+  async function createApiKey() {
+    setSaving(true);
+    setMessage(null);
+    setGeneratedKey(null);
+    try {
+      const res = await fetch("/api/admin/suite-services", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create-api-key" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Génération impossible");
+      setWorkspaceId(data.workspaceId ?? null);
+      setGeneratedKey(data.apiKey ?? null);
+      setMessage("Clé créée — copie-la dans Vercel (TRAIN_SUITE_API_KEY), puis redéploie.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Erreur");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function reseed() {
     setSaving(true);
     setMessage(null);
@@ -79,10 +102,15 @@ export function SuiteServicesPanel({ onCatalogChange }: SuiteServicesPanelProps)
           <Wrench className="h-4 w-4 text-primary" aria-hidden="true" />
           Prestations Train Suite (ton workspace)
         </div>
-        <Button type="button" size="sm" variant="outline" onClick={reseed} disabled={saving || loading}>
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" size="sm" variant="secondary" onClick={createApiKey} disabled={saving || loading}>
+            Générer clé Vercel
+          </Button>
+          <Button type="button" size="sm" variant="outline" onClick={reseed} disabled={saving || loading}>
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
           <span className="ml-2">Réinitialiser VoisinTech</span>
         </Button>
+        </div>
       </div>
 
       <p className="text-xs text-gray-500 leading-relaxed">
@@ -112,6 +140,13 @@ export function SuiteServicesPanel({ onCatalogChange }: SuiteServicesPanelProps)
         <p className={`text-xs leading-relaxed ${message.includes("introuvable") ? "text-red-600" : "text-primary"}`}>
           {message}
         </p>
+      )}
+
+      {generatedKey && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 space-y-2">
+          <p className="text-xs font-semibold text-amber-900">TRAIN_SUITE_API_KEY (à copier une seule fois)</p>
+          <code className="block text-xs break-all text-amber-950 select-all">{generatedKey}</code>
+        </div>
       )}
 
       {workspaceId && !loading && (

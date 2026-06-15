@@ -11,6 +11,15 @@ import {
   voisinTechWorkspaceSetupHint,
 } from "@/lib/suite/resolve-voisintech-workspace";
 import { voisintechServiceSeed } from "@/lib/suite/voisintech-service-seed";
+import { generateApiKey } from "@/lib/suite/api-key";
+
+async function requireWorkspace(prisma: Awaited<ReturnType<typeof getPrisma>>) {
+  const workspaceId = await resolveVoisinTechWorkspaceId(prisma);
+  if (!workspaceId) {
+    return { error: NextResponse.json({ error: voisinTechWorkspaceSetupHint() }, { status: 500 }) };
+  }
+  return { workspaceId };
+}
 
 export async function GET() {
   if (!(await isAdminAuthenticated())) {
@@ -73,15 +82,33 @@ export async function PUT(request: NextRequest) {
   return NextResponse.json({ services: saved, workspaceId });
 }
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   if (!(await isAdminAuthenticated())) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
   const prisma = await getPrisma();
-  const workspaceId = await resolveVoisinTechWorkspaceId(prisma);
-  if (!workspaceId) {
-    return NextResponse.json({ error: voisinTechWorkspaceSetupHint() }, { status: 500 });
+  const resolved = await requireWorkspace(prisma);
+  if ("error" in resolved) return resolved.error;
+  const { workspaceId } = resolved;
+
+  const body = await request.json().catch(() => ({}));
+
+  if (body.action === "create-api-key") {
+    const { fullKey, prefix, hash } = generateApiKey();
+    await prisma.suiteApiKey.create({
+      data: {
+        workspaceId,
+        name: "Vercel / Admin",
+        keyPrefix: prefix,
+        keyHash: hash,
+      },
+    });
+    return NextResponse.json({
+      workspaceId,
+      apiKey: fullKey,
+      message: "Copiez cette clé maintenant — elle ne sera plus affichée.",
+    });
   }
 
   const existing = await prisma.suiteServiceType.count({ where: { workspaceId } });
