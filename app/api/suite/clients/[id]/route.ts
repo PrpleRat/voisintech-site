@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { getPrisma } from "@/lib/prisma";
 import { resolveSuiteAuth } from "@/lib/suite/auth-context";
+import { purgeOldDeletedSuiteClients } from "@/lib/suite/purge-deleted-clients";
 import { suiteError, suiteJson, suiteUnauthorized } from "@/lib/suite/responses";
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -97,6 +98,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   const updated = await prisma.suiteClient.update({
     where: { id },
     data: { deletedAt: new Date() },
+  });
+
+  purgeOldDeletedSuiteClients(prisma, auth.workspaceId).catch((error) => {
+    console.error("[Suite clients DELETE purge]", error);
   });
 
   return suiteJson({ client: clientPayload(updated), deleted: true });
