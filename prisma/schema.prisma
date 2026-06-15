@@ -142,6 +142,7 @@ model SuiteWorkspace {
   businessProfile SuiteBusinessProfile?
   clients         SuiteClient[]
   serviceTypes    SuiteServiceType[]
+  businessRecords SuiteBusinessRecord[]
 }
 
 model SuiteMembership {
@@ -219,6 +220,22 @@ model SuiteServiceType {
 
   @@unique([workspaceId, name])
   @@index([workspaceId, sortOrder])
+}
+
+model SuiteBusinessRecord {
+  id          String         @id @default(cuid())
+  workspaceId String
+  kind        String
+  source      String
+  externalId  String
+  payload     String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+  workspace   SuiteWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, kind, externalId])
+  @@index([workspaceId, kind, updatedAt])
 }
 
 model SuiteRefreshToken {
