@@ -6,6 +6,7 @@ import {
   sendQuoteConfirmationToClient,
   sendQuoteNotificationToOwner,
 } from "@/lib/email";
+import { createSuiteClientFromQuoteLead } from "@/lib/suite/ingest-quote-lead";
 
 export async function POST(request: NextRequest) {
   try {
@@ -76,6 +77,18 @@ export async function POST(request: NextRequest) {
       sendQuoteNotificationToOwner(emailData),
       sendQuoteConfirmationToClient(emailData),
     ]);
+
+    createSuiteClientFromQuoteLead({
+      name,
+      phone,
+      email,
+      address,
+      city,
+      deviceType,
+      problemDesc,
+    }).catch((error) => {
+      console.error("[quote] Suite client ingest:", error);
+    });
 
     const ownerResults = emailResults[0];
     const clientResult = emailResults[1];

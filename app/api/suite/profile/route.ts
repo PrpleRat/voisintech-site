@@ -49,24 +49,26 @@ export async function PUT(request: NextRequest) {
   const body = await request.json();
   const prisma = await getPrisma();
 
+  const str = (value: unknown) => (value == null ? undefined : String(value).trim());
+
   const profile = await prisma.suiteBusinessProfile.upsert({
     where: { workspaceId: auth.workspaceId },
     create: {
       workspaceId: auth.workspaceId,
-      businessName: body.businessName ?? "",
-      ownerName: body.ownerName ?? "",
-      address: body.address ?? "",
-      phone: body.phone ?? "",
-      email: body.email ?? "",
-      siret: body.siret ?? "",
+      businessName: str(body.businessName) ?? "",
+      ownerName: str(body.ownerName) ?? "",
+      address: str(body.address) ?? "",
+      phone: str(body.phone) ?? "",
+      email: str(body.email) ?? "",
+      siret: str(body.siret) ?? "",
     },
     update: {
-      businessName: body.businessName,
-      ownerName: body.ownerName,
-      address: body.address,
-      phone: body.phone,
-      email: body.email,
-      siret: body.siret,
+      ...(str(body.businessName) !== undefined ? { businessName: str(body.businessName)! } : {}),
+      ...(str(body.ownerName) !== undefined ? { ownerName: str(body.ownerName)! } : {}),
+      ...(str(body.address) !== undefined ? { address: str(body.address)! } : {}),
+      ...(str(body.phone) !== undefined ? { phone: str(body.phone)! } : {}),
+      ...(str(body.email) !== undefined ? { email: str(body.email)! } : {}),
+      ...(str(body.siret) !== undefined ? { siret: str(body.siret)! } : {}),
     },
   });
 
