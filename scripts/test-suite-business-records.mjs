@@ -14,6 +14,8 @@ import {
 } from "../lib/suite/business-records.ts";
 
 assert.equal(isSuiteRecordKind("revenue"), true);
+assert.equal(isSuiteRecordKind("maintenance_contract"), true);
+assert.equal(isSuiteRecordKind("maintenance_contract_template"), true);
 assert.equal(isSuiteRecordKind("crm"), false);
 assert.equal(isSuiteRecordSource("trainca"), true);
 assert.equal(isSuiteRecordSource("traincrm"), false);

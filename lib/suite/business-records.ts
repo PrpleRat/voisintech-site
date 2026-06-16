@@ -1,4 +1,11 @@
-export const SUITE_RECORD_KINDS = ["revenue", "quote", "invoice", "intervention"] as const;
+export const SUITE_RECORD_KINDS = [
+  "revenue",
+  "quote",
+  "invoice",
+  "intervention",
+  "maintenance_contract",
+  "maintenance_contract_template",
+] as const;
 export type SuiteRecordKind = (typeof SUITE_RECORD_KINDS)[number];
 
 export const SUITE_RECORD_SOURCES = ["trainca", "factutrain", "agendatrain"] as const;
@@ -94,7 +101,9 @@ export function parseRecordWriteBody(body: SuiteRecordWriteBody, requireAll: boo
 
   if (requireAll) {
     if (!kindRaw || !isSuiteRecordKind(kindRaw)) {
-      throw new Error("kind requis (revenue|quote|invoice|intervention)");
+      throw new Error(
+        "kind requis (revenue|quote|invoice|intervention|maintenance_contract|maintenance_contract_template)"
+      );
     }
     if (!sourceRaw || !isSuiteRecordSource(sourceRaw)) {
       throw new Error("source requis (trainca|factutrain|agendatrain)");
