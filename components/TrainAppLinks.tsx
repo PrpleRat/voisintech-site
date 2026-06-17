@@ -11,7 +11,7 @@ interface TrainAppLinksProps {
 }
 
 export function TrainAppLinks({
-  title = "Apps Train",
+  title = "Apps Voisin Suite",
   actions,
   hint = "Ouvre l'app sur iPhone (apps installées). Sur ordinateur, copiez le lien ou scannez depuis le téléphone.",
 }: TrainAppLinksProps) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
+import { getTestFlightStatus } from "@/config/testflight";
 
 export async function GET() {
   const authenticated = await isAdminAuthenticated();
@@ -13,7 +14,8 @@ export async function GET() {
     const signups = await prisma.suiteBetaSignup.findMany({
       orderBy: { createdAt: "desc" },
     });
-    return NextResponse.json({ signups });
+    const testflight = getTestFlightStatus();
+    return NextResponse.json({ signups, testflight });
   } catch (error) {
     console.error("[API Admin Beta Suite]", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

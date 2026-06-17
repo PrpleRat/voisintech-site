@@ -1,9 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Mail, Phone, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Copy,
+  ExternalLink,
+  Loader2,
+  Mail,
+  Phone,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { suiteActivities, suiteApps, suiteBrand } from "@/config/train-suite";
+import type { TestFlightLinks } from "@/config/testflight";
+import {
+  buildInviteEmail,
+  buildInviteSms,
+  buildSmsHref,
+} from "@/lib/testflight-invite";
 
 interface BetaSignup {
   id: string;
@@ -15,6 +30,13 @@ interface BetaSignup {
   message: string;
   status: string;
   createdAt: string;
+}
+
+interface TestFlightStatus {
+  links: TestFlightLinks;
+  allConfigured: boolean;
+  missing: string[];
+  configured: Array<{ id: string; name: string; url: string }>;
 }
 
 const activityLabels = Object.fromEntries(
@@ -63,9 +85,11 @@ function StatusBadge({ status }: { status: string }) {
 
 export function BetaSuiteTrainPanel() {
   const [signups, setSignups] = useState<BetaSignup[]>([]);
+  const [testflight, setTestflight] = useState<TestFlightStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "new" | "invited" | "installed">("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -74,6 +98,7 @@ export function BetaSuiteTrainPanel() {
       if (!res.ok) throw new Error("load failed");
       const data = await res.json();
       setSignups(data.signups || []);
+      setTestflight(data.testflight || null);
     } finally {
       setLoading(false);
     }
@@ -107,8 +132,26 @@ export function BetaSuiteTrainPanel() {
     }
   };
 
+  const inviteSignup = async (signup: BetaSignup) => {
+    if (!testflight?.links) return;
+    const { mailto } = buildInviteEmail(signup, signup.appsInterested, testflight.links);
+    window.open(mailto, "_self");
+    if (signup.status === "new") {
+      await updateStatus(signup.id, "invited");
+    }
+  };
+
+  const copyInviteMessage = async (signup: BetaSignup) => {
+    if (!testflight?.links) return;
+    const { body } = buildInviteEmail(signup, signup.appsInterested, testflight.links);
+    await navigator.clipboard.writeText(body);
+    setCopiedId(signup.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   const filtered = signups.filter((s) => filter === "all" || s.status === filter);
   const newCount = signups.filter((s) => s.status === "new").length;
+  const linksReady = testflight?.allConfigured ?? false;
 
   if (loading) {
     return (
@@ -127,10 +170,57 @@ export function BetaSuiteTrainPanel() {
           <a href="/train-suite" className="text-primary font-semibold hover:underline" target="_blank" rel="noreferrer">
             voisintech.fr/train-suite
           </a>
-          . Marquez « Invité TestFlight » après envoi du lien Apple.{" "}
+          . Utilisez « Inviter » pour envoyer l&apos;email TestFlight pré-rempli.{" "}
           <strong>{newCount}</strong> nouvelle{newCount > 1 ? "s" : ""} en attente.
         </p>
       </div>
+
+      {testflight && (
+        <div
+          className={`card border ${
+            linksReady ? "border-green-200 bg-green-50/50" : "border-amber-200 bg-amber-50/50"
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            {linksReady ? (
+              <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" aria-hidden="true" />
+            ) : (
+              <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
+            )}
+            <div className="space-y-3 flex-1 min-w-0">
+              <p className="font-semibold text-sm">
+                {linksReady
+                  ? "Liens TestFlight configurés"
+                  : "Liens TestFlight manquants — les emails ne contiendront pas toutes les URLs"}
+              </p>
+              {!linksReady && testflight.missing.length > 0 && (
+                <p className="text-sm text-amber-800">
+                  À définir sur Vercel :{" "}
+                  {testflight.missing.join(", ")}
+                </p>
+              )}
+              {testflight.configured.length > 0 && (
+                <ul className="text-sm space-y-1">
+                  {testflight.configured.map((link) => (
+                    <li key={link.id} className="flex flex-wrap items-center gap-2">
+                      <span className="font-medium">{link.name}</span>
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-primary hover:underline inline-flex items-center gap-1 break-all"
+                      >
+                        {link.url}
+                        <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2">
         {(
@@ -153,77 +243,97 @@ export function BetaSuiteTrainPanel() {
       </div>
 
       <div className="space-y-4">
-        {filtered.map((signup) => (
-          <article key={signup.id} className="card">
-            <div className="flex flex-wrap items-center gap-3 mb-3">
-              <h3 className="text-lg font-bold">{signup.name}</h3>
-              <StatusBadge status={signup.status} />
-            </div>
-            <p className="text-sm text-gray-500 mb-4">
-              {new Date(signup.createdAt).toLocaleString("fr-FR")}
-              {signup.activity
-                ? ` — ${activityLabels[signup.activity] || signup.activity}`
-                : ""}
-            </p>
+        {filtered.map((signup) => {
+          const smsMessage =
+            testflight?.links
+              ? buildInviteSms(signup, signup.appsInterested, testflight.links)
+              : "";
+          const smsHref = smsMessage ? buildSmsHref(signup.phone, smsMessage) : `sms:${signup.phone}`;
 
-            <div className="grid sm:grid-cols-2 gap-4 text-base mb-4">
-              <p className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
-                <a href={`mailto:${signup.email}`} className="text-primary font-semibold break-all hover:underline">
-                  {signup.email}
-                </a>
+          return (
+            <article key={signup.id} className="card">
+              <div className="flex flex-wrap items-center gap-3 mb-3">
+                <h3 className="text-lg font-bold">{signup.name}</h3>
+                <StatusBadge status={signup.status} />
+              </div>
+              <p className="text-sm text-gray-500 mb-4">
+                {new Date(signup.createdAt).toLocaleString("fr-FR")}
+                {signup.activity
+                  ? ` — ${activityLabels[signup.activity] || signup.activity}`
+                  : ""}
               </p>
-              <p className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
-                <a href={`tel:${signup.phone}`} className="text-primary font-semibold hover:underline">
-                  {signup.phone}
-                </a>
+
+              <div className="grid sm:grid-cols-2 gap-4 text-base mb-4">
+                <p className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
+                  <a href={`mailto:${signup.email}`} className="text-primary font-semibold break-all hover:underline">
+                    {signup.email}
+                  </a>
+                </p>
+                <p className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
+                  <a href={`tel:${signup.phone}`} className="text-primary font-semibold hover:underline">
+                    {signup.phone}
+                  </a>
+                </p>
+              </div>
+
+              <p className="text-sm mb-2">
+                <span className="font-semibold text-primary">Apps :</span>{" "}
+                {formatApps(signup.appsInterested)}
               </p>
-            </div>
 
-            <p className="text-sm mb-2">
-              <span className="font-semibold text-primary">Apps :</span>{" "}
-              {formatApps(signup.appsInterested)}
-            </p>
-
-            {signup.message && (
-              <p className="text-gray-700 bg-background rounded-xl p-4 text-sm leading-relaxed mb-4">
-                {signup.message}
-              </p>
-            )}
-
-            <div className="flex flex-wrap gap-2">
-              {signup.status === "new" && (
-                <Button size="sm" onClick={() => updateStatus(signup.id, "invited")}>
-                  Marquer invité TestFlight
-                </Button>
+              {signup.message && (
+                <p className="text-gray-700 bg-background rounded-xl p-4 text-sm leading-relaxed mb-4">
+                  {signup.message}
+                </p>
               )}
-              {signup.status === "invited" && (
-                <Button size="sm" variant="outline" onClick={() => updateStatus(signup.id, "installed")}>
-                  Marquer installé
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => inviteSignup(signup)}
+                  disabled={!testflight?.links || testflight.configured.length === 0}
+                >
+                  <Mail className="h-4 w-4 mr-1" aria-hidden="true" />
+                  Inviter
                 </Button>
-              )}
-              <Button size="sm" variant="outline" asChild>
-                <a href={`mailto:${signup.email}?subject=Votre accès beta ${suiteBrand.name} (TestFlight)`}>
-                  Envoyer email
-                </a>
-              </Button>
-              <Button size="sm" variant="outline" asChild>
-                <a href={`sms:${signup.phone}`}>SMS</a>
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="text-red-600 border-red-200 hover:bg-red-50"
-                disabled={deletingId === signup.id}
-                onClick={() => deleteSignup(signup.id, signup.name)}
-              >
-                <Trash2 className="h-4 w-4" aria-hidden="true" />
-                Supprimer
-              </Button>
-            </div>
-          </article>
-        ))}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => copyInviteMessage(signup)}
+                  disabled={!testflight?.links || testflight.configured.length === 0}
+                >
+                  <Copy className="h-4 w-4 mr-1" aria-hidden="true" />
+                  {copiedId === signup.id ? "Copié !" : "Copier le message"}
+                </Button>
+                <Button size="sm" variant="outline" asChild>
+                  <a href={smsHref}>SMS</a>
+                </Button>
+                {signup.status === "invited" && (
+                  <Button size="sm" variant="outline" onClick={() => updateStatus(signup.id, "installed")}>
+                    Marquer installé
+                  </Button>
+                )}
+                {signup.status === "new" && (
+                  <Button size="sm" variant="ghost" onClick={() => updateStatus(signup.id, "invited")}>
+                    Marquer invité (sans email)
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-red-600 border-red-200 hover:bg-red-50"
+                  disabled={deletingId === signup.id}
+                  onClick={() => deleteSignup(signup.id, signup.name)}
+                >
+                  <Trash2 className="h-4 w-4" aria-hidden="true" />
+                  Supprimer
+                </Button>
+              </div>
+            </article>
+          );
+        })}
 
         {filtered.length === 0 && (
           <p className="text-center text-gray-500 py-12">Aucune inscription beta</p>

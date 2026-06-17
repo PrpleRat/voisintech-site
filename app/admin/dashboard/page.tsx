@@ -280,7 +280,7 @@ function QuoteCard({
           </div>
 
           <TrainAppLinks
-            title="Apps Train — traiter la demande"
+            title="Apps Voisin Suite — traiter la demande"
             actions={trainActions.workflow}
           />
 
@@ -670,7 +670,7 @@ export default function AdminDashboardPage() {
                   </Button>
                 </div>
                 <TrainAppLinks
-                  title="Apps Train"
+                  title="Apps Voisin Suite"
                   actions={contactTrainActions(c)}
                 />
               </div>
