@@ -20,6 +20,7 @@ import { contactTrainActions, quoteTrainActions } from "@/lib/train-deeplinks";
 import { InventoryPanel } from "./InventoryPanel";
 import { SuiteServicesPanel } from "./SuiteServicesPanel";
 import { BetaSuiteTrainPanel } from "./BetaSuiteTrainPanel";
+import { suiteBrand } from "@/config/train-suite";
 import type { SuiteServiceDTO } from "@/lib/voisintech-pricing";
 
 interface Quote {
@@ -444,7 +445,7 @@ export default function AdminDashboardPage() {
               <p className="text-3xl font-bold text-success">{stats.pendingReviews}</p>
             </div>
             <div className="card">
-              <p className="text-sm text-gray-500">Beta Suite Train (nouveaux)</p>
+              <p className="text-sm text-gray-500">Beta {suiteBrand.name} (nouveaux)</p>
               <p className="text-3xl font-bold text-primary">{stats.betaSignupsNew ?? 0}</p>
             </div>
           </div>
@@ -483,7 +484,7 @@ export default function AdminDashboardPage() {
             variant={tab === "beta" ? "default" : "outline"}
             onClick={() => setTab("beta")}
           >
-            Beta Suite Train
+            Beta {suiteBrand.name}
             {(stats?.betaSignupsNew ?? 0) > 0 ? ` (${stats?.betaSignupsNew})` : ""}
           </Button>
         </div>

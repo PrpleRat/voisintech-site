@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormGuardFields, getFormGuardPayload } from "@/components/FormGuard";
-import { trainSuiteActivities, trainSuiteApps } from "@/config/train-suite";
+import { suiteActivities, suiteApps, suiteBrand } from "@/config/train-suite";
 
 export function SuiteBetaForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -76,7 +76,7 @@ export function SuiteBetaForm() {
         <CheckCircle className="h-14 w-14 text-success mx-auto mb-4" aria-hidden="true" />
         <h2 className="text-2xl font-extrabold mb-3">Inscription enregistrée</h2>
         <p className="text-lg text-gray-700 leading-relaxed max-w-md mx-auto">
-          Merci ! Vous êtes sur la liste d&apos;attente beta iOS Train Suite.
+          Merci ! Vous êtes sur la liste d&apos;attente beta iOS {suiteBrand.name}.
           On vous envoie le lien TestFlight par email ou SMS dès qu&apos;une place se libère.
         </p>
       </div>
@@ -173,7 +173,7 @@ export function SuiteBetaForm() {
           aria-invalid={!!errors.activity}
         >
           <option value="">Choisir…</option>
-          {trainSuiteActivities.map((item) => (
+          {suiteActivities.map((item) => (
             <option key={item.value} value={item.value}>
               {item.label}
             </option>
@@ -191,7 +191,7 @@ export function SuiteBetaForm() {
           Quelles apps vous intéressent ? *
         </legend>
         <div className="grid sm:grid-cols-2 gap-3">
-          {trainSuiteApps.map((app) => {
+          {suiteApps.map((app) => {
             const checked = apps.includes(app.id);
             const inputId = `beta-app-${app.id}`;
             return (

@@ -1,57 +1,74 @@
-export interface TrainSuiteApp {
+export interface SuiteApp {
   id: string;
-  /** Nom affiché sur l’icône iOS aujourd’hui */
+  /** Nom technique / icône iOS actuelle (bundle inchangé) */
   currentName: string;
-  /** Nom conseillé App Store (sous-titre clair) */
+  /** Nom public — modèle « {prefix} Agenda », etc. */
   marketingName: string;
   tagline: string;
   icon: string;
 }
 
-export const trainSuiteBrand = {
-  name: "Train Suite",
+/** Préfixe marque publique (remplace « Train ») — modèle : Voisin Agenda, Voisin Facture… */
+export const SUITE_BRAND_PREFIX = "Voisin";
+
+function suiteAppName(role: string): string {
+  return `${SUITE_BRAND_PREFIX} ${role}`;
+}
+
+export const suiteBrand = {
+  prefix: SUITE_BRAND_PREFIX,
+  name: `${SUITE_BRAND_PREFIX} Suite`,
   tagline: "La boîte à outils iOS pour micro-entrepreneurs et dépanneurs",
   description:
     "Quatre apps qui se parlent : agenda, facturation, comptabilité simplifiée et suivi clients. Pensées pour les indépendants sur le terrain — pas pour les geeks.",
   betaNote:
-    "Beta iOS fermée pour l’instant. Inscrivez-vous : on vous envoie le lien TestFlight dès qu’une place se libère.",
+    "Beta iOS fermée pour l'instant. Inscrivez-vous : on vous envoie le lien TestFlight dès qu'une place se libère.",
 };
 
-export const trainSuiteApps: TrainSuiteApp[] = [
+/** @deprecated alias — préférer suiteBrand */
+export const trainSuiteBrand = suiteBrand;
+
+export const suiteApps: SuiteApp[] = [
   {
     id: "agendatrain",
     currentName: "AgendaTrain",
-    marketingName: "Train Agenda",
+    marketingName: suiteAppName("Agenda"),
     tagline: "Planning & interventions à domicile",
     icon: "Calendar",
   },
   {
     id: "factutrain",
     currentName: "FactuTrain",
-    marketingName: "Train Facture",
+    marketingName: suiteAppName("Facture"),
     tagline: "Devis, factures & abonnements",
     icon: "FileText",
   },
   {
     id: "trainca",
     currentName: "TrainCA",
-    marketingName: "Train Compta",
+    marketingName: suiteAppName("Compta"),
     tagline: "Recettes, charges & déclarations",
     icon: "Calculator",
   },
   {
     id: "traincrm",
     currentName: "TrainCRM",
-    marketingName: "Train Clients",
+    marketingName: suiteAppName("Clients"),
     tagline: "Fiches clients & relances",
     icon: "Users",
   },
 ];
 
-export const trainSuiteActivities = [
+/** @deprecated alias */
+export const trainSuiteApps = suiteApps;
+
+export const suiteActivities = [
   { value: "depannage", label: "Dépannage informatique / assistance" },
   { value: "artisan", label: "Artisan / BTP" },
   { value: "consultant", label: "Consultant / prestataire de services" },
   { value: "commerce", label: "Commerce / vente" },
   { value: "autre", label: "Autre micro-entreprise" },
 ];
+
+/** @deprecated alias */
+export const trainSuiteActivities = suiteActivities;

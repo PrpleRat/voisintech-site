@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { business } from "@/config/content";
+import { suiteBrand } from "@/config/train-suite";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import { useRegion } from "@/components/RegionProvider";
@@ -12,7 +13,7 @@ const footerLinks = [
   { href: "/devis", label: "Devis gratuit" },
   { href: "/villes", label: "Villes desservies" },
   { href: "/pro", label: "Espace Pro" },
-  { href: "/train-suite", label: "Beta Train Suite iOS" },
+  { href: "/train-suite", label: `Beta ${suiteBrand.name} iOS` },
   { href: "/materiel", label: "Matériel" },
   { href: "/blog", label: "Blog & FAQ" },
   { href: "/avis", label: "Avis clients" },

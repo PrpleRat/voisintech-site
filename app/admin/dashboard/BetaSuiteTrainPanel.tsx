@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Loader2, Mail, Phone, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { trainSuiteActivities, trainSuiteApps } from "@/config/train-suite";
+import { suiteActivities, suiteApps, suiteBrand } from "@/config/train-suite";
 
 interface BetaSignup {
   id: string;
@@ -18,11 +18,11 @@ interface BetaSignup {
 }
 
 const activityLabels = Object.fromEntries(
-  trainSuiteActivities.map((a) => [a.value, a.label])
+  suiteActivities.map((a) => [a.value, a.label])
 );
 
 const appLabels = Object.fromEntries(
-  trainSuiteApps.map((a) => [a.id, a.marketingName])
+  suiteApps.map((a) => [a.id, a.marketingName])
 );
 
 function formatApps(json: string) {
@@ -121,7 +121,7 @@ export function BetaSuiteTrainPanel() {
   return (
     <div className="space-y-6">
       <div className="card bg-primary/5 border border-primary/15">
-        <h2 className="text-xl font-bold mb-2">Beta Suite Train — inscriptions iOS</h2>
+        <h2 className="text-xl font-bold mb-2">Beta {suiteBrand.name} — inscriptions iOS</h2>
         <p className="text-gray-600 text-sm leading-relaxed">
           Liste des inscriptions depuis{" "}
           <a href="/train-suite" className="text-primary font-semibold hover:underline" target="_blank" rel="noreferrer">
@@ -204,7 +204,7 @@ export function BetaSuiteTrainPanel() {
                 </Button>
               )}
               <Button size="sm" variant="outline" asChild>
-                <a href={`mailto:${signup.email}?subject=Votre accès beta Train Suite (TestFlight)`}>
+                <a href={`mailto:${signup.email}?subject=Votre accès beta ${suiteBrand.name} (TestFlight)`}>
                   Envoyer email
                 </a>
               </Button>

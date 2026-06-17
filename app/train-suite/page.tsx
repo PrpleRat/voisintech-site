@@ -10,13 +10,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { SuiteBetaForm } from "@/components/SuiteBetaForm";
-import { trainSuiteApps, trainSuiteBrand } from "@/config/train-suite";
+import { suiteApps, suiteBrand } from "@/config/train-suite";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Train Suite — Beta iOS pour micro-entrepreneurs",
+  title: `${suiteBrand.name} — Beta iOS pour micro-entrepreneurs`,
   description:
-    "Inscrivez-vous à la beta iOS Train Suite : agenda, facturation, compta et CRM synchronisés pour les indépendants. TestFlight bientôt disponible.",
+    `Inscrivez-vous à la beta iOS ${suiteBrand.name} : agenda, facturation, compta et CRM synchronisés pour les indépendants. TestFlight bientôt disponible.`,
   path: "/train-suite",
 });
 
@@ -35,12 +35,12 @@ export default function TrainSuitePage() {
           <p className="text-success font-bold text-lg mb-3 uppercase tracking-wide">
             Beta iOS — places limitées
           </p>
-          <h1 className="text-4xl font-extrabold mb-4 md:text-5xl">{trainSuiteBrand.name}</h1>
+          <h1 className="text-4xl font-extrabold mb-4 md:text-5xl">{suiteBrand.name}</h1>
           <p className="text-xl text-primary font-semibold mb-4 md:text-2xl">
-            {trainSuiteBrand.tagline}
+            {suiteBrand.tagline}
           </p>
           <p className="text-lg text-gray-700 leading-relaxed md:text-xl">
-            {trainSuiteBrand.description}
+            {suiteBrand.description}
           </p>
         </header>
 
@@ -52,7 +52,7 @@ export default function TrainSuitePage() {
             Les quatre apps de la suite
           </h2>
           <ul className="pricing-grid pricing-grid-2 max-w-5xl mx-auto">
-            {trainSuiteApps.map((app) => {
+            {suiteApps.map((app) => {
               const Icon = iconMap[app.icon] ?? Calendar;
               return (
                 <li key={app.id} className="pricing-grid-item">
@@ -121,7 +121,7 @@ export default function TrainSuitePage() {
           <p className="text-lg text-gray-700 mb-4">
             Dites-le dans le message du formulaire — les utilisateurs du terrain passent en priorité.
           </p>
-          <p className="text-base text-gray-600">{trainSuiteBrand.betaNote}</p>
+          <p className="text-base text-gray-600">{suiteBrand.betaNote}</p>
         </section>
       </div>
     </div>

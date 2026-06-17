@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPrisma } from "@/lib/prisma";
+import { suiteBrand } from "@/config/train-suite";
 import { isSpamSubmission } from "@/lib/antispam";
+import { getPrisma } from "@/lib/prisma";
 import { sendOwnerSms } from "@/lib/sms";
 
 export async function POST(request: NextRequest) {
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
     });
 
     await sendOwnerSms(
-      `[Train Suite] Beta iOS: ${name.trim()} — ${phone.trim()} — ${apps.join(", ")}`
+      `[${suiteBrand.name}] Beta iOS: ${name.trim()} — ${phone.trim()} — ${apps.join(", ")}`
     ).catch(() => undefined);
 
     return NextResponse.json({ success: true, id: signup.id });

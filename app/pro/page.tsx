@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { business } from "@/config/content";
 import { pageMetadata } from "@/lib/seo";
+import { suiteBrand } from "@/config/train-suite";
 
 export const metadata: Metadata = pageMetadata({
   title: "Espace Pro — Sites web, URSSAF & outils métier",
@@ -19,12 +20,23 @@ export const metadata: Metadata = pageMetadata({
   path: "/pro",
 });
 
-const services = [
+type ProServiceStatus = "available" | "beta" | "construction";
+
+type ProService = {
+  id: string;
+  icon: typeof Globe;
+  title: string;
+  status: ProServiceStatus;
+  description: string;
+  cta: { href: string; label: string } | null;
+};
+
+const services: ProService[] = [
   {
     id: "site-web",
     icon: Globe,
     title: "Site web sur mesure",
-    status: "available" as const,
+    status: "available",
     description:
       "Vitrine, landing page ou site complet — design pro, formulaire de contact, SEO local. Idéal artisans, indépendants et TPE.",
     cta: { href: "/pro/site-web", label: "Demander un devis" },
@@ -33,7 +45,7 @@ const services = [
     id: "urssaf",
     icon: FileSpreadsheet,
     title: "Accompagnement URSSAF & admin",
-    status: "available" as const,
+    status: "available",
     description:
       "Déclarations URSSAF, facturation, premiers pas en micro-entreprise. Je vous guide pas à pas — sans jargon administratif.",
     cta: { href: "/pro/urssaf", label: "Demander un devis" },
@@ -41,8 +53,8 @@ const services = [
   {
     id: "train-suite",
     icon: Layers,
-    title: "Train Suite — Agenda, Facture, Compta, Clients",
-    status: "beta" as const,
+    title: `${suiteBrand.name} — Agenda, Facture, Compta, Clients`,
+    status: "beta",
     description:
       "Quatre apps iOS synchronisées pour micro-entrepreneurs : planning, devis/factures, compta simplifiée et CRM. Beta TestFlight ouverte sur inscription.",
     cta: { href: "/train-suite", label: "S'inscrire à la beta iOS" },
