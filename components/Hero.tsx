@@ -43,7 +43,7 @@ export function Hero() {
               <CallButton className="w-full sm:w-auto" />
               <WhatsAppButton className="w-full sm:w-auto" />
               <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
-                <Link href="/services">Voir les tarifs</Link>
+                <Link href="/services#tarifs">Voir les tarifs</Link>
               </Button>
             </div>
             <p className="mt-6 text-base text-gray-600">

@@ -7,6 +7,7 @@ import { ServiceAreaMap } from "@/components/ServiceAreaMap";
 import { services, howItWorks, trustBadges, business, homeFaq } from "@/config/content";
 import { pageMetadata, absoluteUrl, faqJsonLd } from "@/lib/seo";
 import { FAQAccordion } from "@/components/FAQAccordion";
+import { PricingTeaser } from "@/components/PricingTeaser";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Button } from "@/components/ui/button";
 import {
@@ -90,6 +91,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <PricingTeaser />
 
       <section className="section-padding bg-primary/5">
         <div className="container-page">

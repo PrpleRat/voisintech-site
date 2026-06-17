@@ -8,6 +8,28 @@ export interface Service {
   deviceType: string;
 }
 
+export interface PricingItem {
+  id: string;
+  label: string;
+  price: string;
+  description: string;
+  features: string[];
+  note?: string;
+}
+
+export interface MaintenancePlan {
+  id: string;
+  name: string;
+  monthlyPrice: string;
+  includedVisits: number;
+  discountPercent: number;
+  responseSLAHours: number;
+  description: string;
+  features: string[];
+  highlighted?: boolean;
+  badge?: string;
+}
+
 export const business = {
   name: "VoisinTech",
   slogan: "Votre voisin de confiance pour le numérique",
@@ -92,19 +114,131 @@ export const services = [
 ];
 
 export const pricing = {
+  seniorHighlight: {
+    title: "Tarif senior — 65 ans et plus",
+    price: "40 €/h",
+    standardPrice: "50 €/h",
+    description:
+      "Tarif préférentiel sur le dépannage à domicile. Pas de paperasse compliquée — on vous fait confiance.",
+  },
   hourly: [
-    { label: "Dépannage à domicile", price: "50€/h", note: "40€/h tarif senior" },
-    { label: "Formation à domicile", price: "40€/h" },
-    { label: "Assistance à distance", price: "35€/h" },
-  ],
+    {
+      id: "depannage",
+      label: "Dépannage à domicile",
+      price: "50 €/h",
+      note: "40 €/h tarif senior",
+      description: "PC, Mac, imprimante, box internet — chez vous.",
+      features: [
+        "Devis gratuit avant réparation",
+        "Explications en français simple",
+        "Garantie 30 jours",
+      ],
+    },
+    {
+      id: "formation",
+      label: "Formation à domicile",
+      price: "40 €/h",
+      description: "Mail, photos, visio, banque en ligne — à votre rythme.",
+      features: [
+        "Patience et reformulations",
+        "Fiches récap à emporter",
+        "Pas de limite de questions",
+      ],
+    },
+    {
+      id: "distance",
+      label: "Assistance à distance",
+      price: "35 €/h",
+      description: "Prise en main par téléphone ou visio, sans déplacement.",
+      features: [
+        "Idéal pour les petits soucis",
+        "Connexion sécurisée",
+        "Même tarif clair qu'à domicile",
+      ],
+    },
+  ] satisfies PricingItem[],
   packages: [
-    { label: "Diagnostic complet", price: "30€", description: "Identification du problème + devis" },
-    { label: "Remise en état", price: "80€", description: "Nettoyage, optimisation, mise à jour" },
-    { label: "Configuration smartphone", price: "50€", description: "Transfert données + apps essentielles" },
-    { label: "Pack sécurité", price: "60€", description: "Antivirus + sauvegarde + conseils" },
-  ],
+    {
+      id: "diagnostic",
+      label: "Diagnostic complet",
+      price: "30 €",
+      description: "Identification du problème + devis détaillé.",
+      features: ["Sur place ou à distance", "Sans engagement", "Devis remis sur-le-champ"],
+    },
+    {
+      id: "remise",
+      label: "Remise en état",
+      price: "80 €",
+      description: "Nettoyage, optimisation et mises à jour.",
+      features: ["PC plus rapide", "Logiciels à jour", "Conseils personnalisés"],
+    },
+    {
+      id: "smartphone",
+      label: "Configuration smartphone",
+      price: "50 €",
+      description: "Transfert de données et applications essentielles.",
+      features: ["Contacts et photos sauvés", "Apps installées", "Mode d'emploi oral"],
+    },
+    {
+      id: "securite",
+      label: "Pack sécurité",
+      price: "60 €",
+      description: "Antivirus, sauvegarde et bons réflexes.",
+      features: ["Protection installée", "Sauvegarde configurée", "Arnaques expliquées"],
+    },
+  ] satisfies PricingItem[],
   note: "Déplacement gratuit jusqu'à 15 km autour de Toulouse",
 };
+
+export const maintenancePlans: MaintenancePlan[] = [
+  {
+    id: "bronze",
+    name: "Bronze",
+    monthlyPrice: "9 €",
+    includedVisits: 1,
+    discountPercent: 10,
+    responseSLAHours: 72,
+    description: "L'essentiel pour être tranquille toute l'année.",
+    features: [
+      "1 visite à domicile incluse par an",
+      "Dépannage prioritaire sous 72 h",
+      "−10 % sur les interventions hors forfait",
+      "Ligne directe en cas de blocage",
+    ],
+  },
+  {
+    id: "silver",
+    name: "Silver",
+    monthlyPrice: "19 €",
+    includedVisits: 2,
+    discountPercent: 15,
+    responseSLAHours: 48,
+    description: "Le meilleur équilibre pour un suivi régulier.",
+    features: [
+      "2 visites à domicile incluses par an",
+      "Dépannage prioritaire sous 48 h",
+      "−15 % sur les interventions hors forfait",
+      "Rappels de sauvegarde et mises à jour",
+    ],
+    highlighted: true,
+    badge: "Le plus choisi",
+  },
+  {
+    id: "gold",
+    name: "Gold",
+    monthlyPrice: "29 €",
+    includedVisits: 4,
+    discountPercent: 20,
+    responseSLAHours: 24,
+    description: "Sérénité maximale — priorité absolue.",
+    features: [
+      "4 visites à domicile incluses par an",
+      "Dépannage prioritaire sous 24 h",
+      "−20 % sur les interventions hors forfait",
+      "Suivi personnalisé de vos appareils",
+    ],
+  },
+];
 
 export const howItWorks = [
   {
@@ -180,7 +314,7 @@ export const homeFaq = [
   {
     question: "Quel est le tarif d'un dépannage informatique ?",
     answer:
-      "50€/h à domicile (40€/h tarif senior 65+). Diagnostic 30€. Devis toujours gratuit avant réparation.",
+      "50 €/h à domicile (40 €/h tarif senior 65+). Diagnostic 30 €. Devis toujours gratuit avant réparation. Contrats maintenance dès 9 €/mois.",
   },
 ];
 
@@ -208,7 +342,12 @@ export const faq = [
   {
     question: "Proposez-vous un tarif pour les seniors ?",
     answer:
-      "Oui ! Les personnes de 65 ans et plus bénéficient d'un tarif préférentiel à 40€/h au lieu de 50€/h pour le dépannage.",
+      "Oui ! Les personnes de 65 ans et plus bénéficient d'un tarif préférentiel à 40 €/h au lieu de 50 €/h pour le dépannage à domicile.",
+  },
+  {
+    question: "Proposez-vous des contrats de maintenance ?",
+    answer:
+      "Oui — formules Bronze (9 €/mois), Silver (19 €/mois) et Gold (29 €/mois). Visites à domicile incluses, dépannage prioritaire et réductions sur les interventions. Sans engagement longue durée.",
   },
   {
     question: "Puis-je avoir un devis avant l'intervention ?",

@@ -7,7 +7,7 @@ import { Step1, Step1Data } from "./Step1";
 import { Step2, Step2Data } from "./Step2";
 import { Step3, Step3Data } from "./Step3";
 import { Button } from "@/components/ui/button";
-import { business, services } from "@/config/content";
+import { business, services, maintenancePlans } from "@/config/content";
 import { useRegion } from "@/components/RegionProvider";
 import { cn } from "@/lib/utils";
 import { FormGuardFields, getFormGuardPayload } from "@/components/FormGuard";
@@ -23,6 +23,7 @@ export function QuoteForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const serviceId = searchParams.get("service");
+  const planId = searchParams.get("plan");
   const { config } = useRegion();
 
   useEffect(() => {
@@ -32,11 +33,14 @@ export function QuoteForm() {
   }, [serviceId, router]);
 
   const preselectedService = services.find((s) => s.id === serviceId);
+  const preselectedPlan = maintenancePlans.find((p) => p.id === planId);
 
   const [step, setStep] = useState(1);
   const [step1, setStep1] = useState<Step1Data>({
-    deviceType: preselectedService?.deviceType ?? "",
-    problemDesc: "",
+    deviceType: preselectedService?.deviceType ?? "Autre",
+    problemDesc: preselectedPlan
+      ? `Je souhaite souscrire au contrat maintenance ${preselectedPlan.name} (${preselectedPlan.monthlyPrice}/mois). Merci de me recontacter pour en discuter.`
+      : "",
   });
   const [step2, setStep2] = useState<Step2Data>({
     name: "",
@@ -197,7 +201,11 @@ export function QuoteForm() {
           <Step1
             data={step1}
             onChange={setStep1}
-            selectedService={preselectedService?.title}
+            selectedService={
+              preselectedPlan
+                ? `Contrat maintenance ${preselectedPlan.name}`
+                : preselectedService?.title
+            }
             errors={{
               deviceType: errors.deviceType,
               problemDesc: errors.problemDesc,

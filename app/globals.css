@@ -48,4 +48,169 @@
   .phone-link {
     @apply text-primary font-bold text-lg hover:underline focus-visible:underline;
   }
+
+  /* Grille tarifaire — lisibilité seniors (gros texte, contraste, zones tactiles) */
+  .pricing-section {
+    @apply space-y-12 md:space-y-16;
+  }
+
+  .pricing-senior-banner {
+    @apply flex flex-col gap-5 rounded-3xl border-4 border-success/50 bg-success/10 p-6 md:flex-row md:items-center md:gap-8 md:p-10;
+  }
+
+  .pricing-senior-icon {
+    @apply flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-success text-white;
+  }
+
+  .pricing-senior-kicker {
+    @apply text-base font-bold uppercase tracking-wide text-success md:text-lg;
+  }
+
+  .pricing-senior-title {
+    @apply text-2xl font-extrabold text-foreground md:text-3xl;
+  }
+
+  .pricing-senior-price {
+    @apply my-2 flex flex-wrap items-baseline gap-3;
+  }
+
+  .pricing-senior-amount {
+    @apply text-4xl font-extrabold text-success md:text-5xl;
+  }
+
+  .pricing-senior-vs {
+    @apply text-xl font-semibold text-gray-700 line-through md:text-2xl;
+  }
+
+  .pricing-senior-desc {
+    @apply text-lg leading-relaxed text-gray-800 md:text-xl;
+  }
+
+  .pricing-header {
+    @apply max-w-4xl;
+  }
+
+  .pricing-main-title {
+    @apply text-3xl font-extrabold text-foreground md:text-4xl;
+  }
+
+  .pricing-main-lead {
+    @apply mt-4 text-xl leading-relaxed text-gray-700 md:text-2xl;
+  }
+
+  .pricing-category {
+    @apply space-y-6;
+  }
+
+  .pricing-category-head {
+    @apply flex items-start gap-4;
+  }
+
+  .pricing-category-icon {
+    @apply mt-1 h-9 w-9 shrink-0 text-primary md:h-10 md:w-10;
+  }
+
+  .pricing-category-title {
+    @apply text-2xl font-extrabold text-foreground md:text-3xl;
+  }
+
+  .pricing-category-subtitle {
+    @apply mt-2 max-w-3xl text-lg leading-relaxed text-gray-700 md:text-xl;
+  }
+
+  .pricing-category-maintenance {
+    @apply rounded-3xl border-2 border-primary/15 bg-primary/5 p-6 md:p-8;
+  }
+
+  .pricing-grid {
+    @apply m-0 grid list-none gap-6 p-0;
+  }
+
+  .pricing-grid-2 {
+    @apply sm:grid-cols-2;
+  }
+
+  .pricing-grid-3 {
+    @apply sm:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .pricing-grid-item {
+    @apply flex;
+  }
+
+  .pricing-card {
+    @apply relative flex h-full w-full flex-col rounded-3xl border-2 border-primary/20 bg-white p-6 shadow-card md:p-8;
+  }
+
+  .pricing-card-featured {
+    @apply border-[3px] border-primary shadow-soft ring-4 ring-primary/15;
+  }
+
+  .pricing-card-maintenance {
+    @apply bg-white;
+  }
+
+  .pricing-badge {
+    @apply mb-4 inline-flex self-start rounded-full bg-primary px-4 py-2 text-base font-bold text-white;
+  }
+
+  .pricing-card-top {
+    @apply mb-4 flex items-center gap-4;
+  }
+
+  .pricing-card-icon {
+    @apply flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary;
+  }
+
+  .pricing-card-title {
+    @apply text-xl font-extrabold text-foreground md:text-2xl;
+  }
+
+  .pricing-card-title-plan {
+    @apply text-2xl md:text-3xl;
+  }
+
+  .pricing-price-block {
+    @apply my-3;
+  }
+
+  .pricing-compare {
+    @apply text-lg font-semibold text-gray-600 md:text-xl;
+  }
+
+  .pricing-price {
+    @apply text-4xl font-extrabold leading-none text-primary md:text-5xl;
+  }
+
+  .pricing-unit {
+    @apply mt-1 text-xl font-semibold text-gray-700 md:text-2xl;
+  }
+
+  .pricing-card-note {
+    @apply mb-2 text-lg font-bold text-success md:text-xl;
+  }
+
+  .pricing-card-desc {
+    @apply mb-4 text-lg leading-relaxed text-gray-800 md:text-xl;
+  }
+
+  .pricing-features {
+    @apply m-0 flex-1 space-y-3 p-0;
+  }
+
+  .pricing-features li {
+    @apply flex items-start gap-3 text-lg leading-snug text-gray-900 md:text-xl;
+  }
+
+  .pricing-feature-icon {
+    @apply mt-0.5 h-6 w-6 shrink-0 text-success;
+  }
+
+  .pricing-card-cta {
+    @apply mt-6 pt-2;
+  }
+
+  .pricing-footnote {
+    @apply rounded-2xl border-2 border-primary/15 bg-white p-6 text-center text-lg leading-relaxed text-gray-800 md:text-xl;
+  }
 }
