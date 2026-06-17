@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
 
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      const [quotesWeek, quotesMonth, contactsWeek, contactsMonth, proWeek, proMonth, pendingReviews] =
+      const [quotesWeek, quotesMonth, contactsWeek, contactsMonth, proWeek, proMonth, pendingReviews, betaSignupsNew] =
         await Promise.all([
           prisma.quoteRequest.count({ where: { createdAt: { gte: startOfWeek } } }),
           prisma.quoteRequest.count({ where: { createdAt: { gte: startOfMonth } } }),
@@ -102,6 +102,7 @@ export async function POST(request: NextRequest) {
           prisma.proRequest.count({ where: { createdAt: { gte: startOfWeek } } }),
           prisma.proRequest.count({ where: { createdAt: { gte: startOfMonth } } }),
           prisma.review.count({ where: { status: "pending" } }),
+          prisma.suiteBetaSignup.count({ where: { status: "new" } }),
         ]);
 
       return NextResponse.json({
@@ -112,6 +113,7 @@ export async function POST(request: NextRequest) {
         proWeek,
         proMonth,
         pendingReviews,
+        betaSignupsNew,
       });
     }
 

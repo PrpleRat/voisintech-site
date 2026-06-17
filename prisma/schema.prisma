@@ -246,3 +246,18 @@ model SuiteRefreshToken {
   createdAt DateTime     @default(now())
   account   SuiteAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
 }
+
+model SuiteBetaSignup {
+  id             String   @id @default(cuid())
+  name           String
+  email          String
+  phone          String   @default("")
+  activity       String   @default("")
+  appsInterested String   @default("[]")
+  message        String   @default("")
+  status         String   @default("new")
+  createdAt      DateTime @default(now())
+
+  @@index([email])
+  @@index([status, createdAt])
+}

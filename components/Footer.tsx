@@ -12,6 +12,7 @@ const footerLinks = [
   { href: "/devis", label: "Devis gratuit" },
   { href: "/villes", label: "Villes desservies" },
   { href: "/pro", label: "Espace Pro" },
+  { href: "/train-suite", label: "Beta Train Suite iOS" },
   { href: "/materiel", label: "Matériel" },
   { href: "/blog", label: "Blog & FAQ" },
   { href: "/avis", label: "Avis clients" },

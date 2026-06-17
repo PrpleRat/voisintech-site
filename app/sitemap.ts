@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/pro",
     "/pro/site-web",
     "/pro/urssaf",
+    "/train-suite",
     "/materiel",
     "/mentions-legales",
     "/politique-confidentialite",

@@ -232,3 +232,18 @@ CREATE UNIQUE INDEX IF NOT EXISTS "SuiteBusinessRecord_workspaceId_kind_external
   ON "SuiteBusinessRecord"("workspaceId", "kind", "externalId");
 CREATE INDEX IF NOT EXISTS "SuiteBusinessRecord_workspaceId_kind_updatedAt_idx"
   ON "SuiteBusinessRecord"("workspaceId", "kind", "updatedAt");
+
+CREATE TABLE IF NOT EXISTS "SuiteBetaSignup" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "phone" TEXT NOT NULL DEFAULT '',
+    "activity" TEXT NOT NULL DEFAULT '',
+    "appsInterested" TEXT NOT NULL DEFAULT '[]',
+    "message" TEXT NOT NULL DEFAULT '',
+    "status" TEXT NOT NULL DEFAULT 'new',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS "SuiteBetaSignup_email_idx" ON "SuiteBetaSignup"("email");
+CREATE INDEX IF NOT EXISTS "SuiteBetaSignup_status_createdAt_idx" ON "SuiteBetaSignup"("status", "createdAt");

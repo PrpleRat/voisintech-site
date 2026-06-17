@@ -41,11 +41,11 @@ const services = [
   {
     id: "train-suite",
     icon: Layers,
-    title: "Suite Train — CRM, Agenda, Factu, CA",
-    status: "construction" as const,
+    title: "Train Suite — Agenda, Facture, Compta, Clients",
+    status: "beta" as const,
     description:
-      "Quatre applications interconnectées pour gérer clients, planning, devis/factures et chiffre d'affaires. Bundle en cours de finalisation.",
-    cta: null,
+      "Quatre apps iOS synchronisées pour micro-entrepreneurs : planning, devis/factures, compta simplifiée et CRM. Beta TestFlight ouverte sur inscription.",
+    cta: { href: "/train-suite", label: "S'inscrire à la beta iOS" },
   },
 ];
 
@@ -72,6 +72,11 @@ export default function ProPage() {
                   <span className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold px-3 py-1">
                     <Construction className="h-3.5 w-3.5" aria-hidden="true" />
                     En construction
+                  </span>
+                )}
+                {service.status === "beta" && (
+                  <span className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-success/15 text-success text-xs font-semibold px-3 py-1">
+                    Beta iOS
                   </span>
                 )}
                 <div className="flex flex-col sm:flex-row gap-5">

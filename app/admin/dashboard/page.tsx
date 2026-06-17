@@ -19,6 +19,7 @@ import { TrainAppLinks } from "@/components/TrainAppLinks";
 import { contactTrainActions, quoteTrainActions } from "@/lib/train-deeplinks";
 import { InventoryPanel } from "./InventoryPanel";
 import { SuiteServicesPanel } from "./SuiteServicesPanel";
+import { BetaSuiteTrainPanel } from "./BetaSuiteTrainPanel";
 import type { SuiteServiceDTO } from "@/lib/voisintech-pricing";
 
 interface Quote {
@@ -55,6 +56,7 @@ interface Stats {
   proWeek: number;
   proMonth: number;
   pendingReviews: number;
+  betaSignupsNew: number;
 }
 
 interface ProRequest {
@@ -300,7 +302,7 @@ export default function AdminDashboardPage() {
   const [proRequests, setProRequests] = useState<ProRequest[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"quotes" | "pro" | "contacts" | "materiel">("quotes");
+  const [tab, setTab] = useState<"quotes" | "pro" | "contacts" | "materiel" | "beta">("quotes");
   const [quoteFilter, setQuoteFilter] = useState<"all" | "new" | "contacted" | "done">("all");
   const [contactFilter, setContactFilter] = useState<"all" | "new" | "done">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -441,6 +443,10 @@ export default function AdminDashboardPage() {
               <p className="text-sm text-gray-500">Avis en attente</p>
               <p className="text-3xl font-bold text-success">{stats.pendingReviews}</p>
             </div>
+            <div className="card">
+              <p className="text-sm text-gray-500">Beta Suite Train (nouveaux)</p>
+              <p className="text-3xl font-bold text-primary">{stats.betaSignupsNew ?? 0}</p>
+            </div>
           </div>
         )}
 
@@ -472,6 +478,13 @@ export default function AdminDashboardPage() {
             onClick={() => setTab("materiel")}
           >
             Matériel
+          </Button>
+          <Button
+            variant={tab === "beta" ? "default" : "outline"}
+            onClick={() => setTab("beta")}
+          >
+            Beta Suite Train
+            {(stats?.betaSignupsNew ?? 0) > 0 ? ` (${stats?.betaSignupsNew})` : ""}
           </Button>
         </div>
 
@@ -584,6 +597,8 @@ export default function AdminDashboardPage() {
         )}
 
         {tab === "materiel" && <InventoryPanel />}
+
+        {tab === "beta" && <BetaSuiteTrainPanel />}
 
         {tab === "contacts" && (
           <div className="space-y-4">
