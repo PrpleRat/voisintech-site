@@ -416,7 +416,10 @@ export default function AdminDashboardPage() {
       <div className="container-page">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <h1 className="text-3xl font-bold">Tableau de bord</h1>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
+            <Button asChild variant="outline">
+              <Link href="/admin/bos-dashboard">BOS Dashboard</Link>
+            </Button>
             <Button asChild variant="outline">
               <Link href="/admin/avis">Modérer les avis</Link>
             </Button>
